@@ -1,12 +1,14 @@
 package users
 
+import "fmt"
+
 type CreateUser struct {
 	Name string
 	Age  int
 }
 
 type UserDTO struct {
-	ID   userID
+	ID   int
 	Name string
 	Age  int
 }
@@ -17,5 +19,13 @@ type CreatedUserDTO struct {
 
 type UsersFacade interface {
 	Add(user CreateUser) (CreatedUserDTO, error)
-	Get(user userID) (UserDTO, error)
+	Get(user int) (UserDTO, error)
+}
+
+type UserNotFound struct {
+	userID int
+}
+
+func (err UserNotFound) Error() string {
+	return fmt.Sprintf("User not found: %d", err.userID)
 }

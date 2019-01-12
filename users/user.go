@@ -1,7 +1,7 @@
 package users
 
 type user struct {
-	ID   userID
+	ID   int
 	Name string
 	Age  int
 }

@@ -14,16 +14,16 @@ type genreFindResult struct {
 
 type moviesRepository interface {
 	Save(movie movie) (movie, error)
-	Find(id movieID) (movie, error)
+	Find(id MovieID) (movie, error)
 	FindByGenre(genre string, after int, count int) (genreFindResult, error)
 }
 
 func newInMemoryRepository() moviesRepository {
-	return &moviesInMemoryRepository{data: make(map[movieID]movie), lock: sync.Mutex{}, nextID: 1}
+	return &moviesInMemoryRepository{data: make(map[MovieID]movie), lock: sync.Mutex{}, nextID: 1}
 }
 
 type moviesInMemoryRepository struct {
-	data   map[movieID]movie
+	data   map[MovieID]movie
 	lock   sync.Mutex
 	nextID int
 }
@@ -32,13 +32,13 @@ func (r *moviesInMemoryRepository) Save(movie movie) (movie, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	movie.ID = movieID(r.nextID)
+	movie.ID = MovieID(r.nextID)
 	r.data[movie.ID] = movie
 	r.nextID += 1
 	return movie, nil
 }
 
-func (r *moviesInMemoryRepository) Find(movieID movieID) (movie, error) {
+func (r *moviesInMemoryRepository) Find(movieID MovieID) (movie, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	for id, movie := range r.data {

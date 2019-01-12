@@ -1,11 +1,11 @@
 package movies
 
 type movie struct {
-	ID         movieID
+	ID         MovieID
 	Title      string
 	Year       int
 	MinimalAge int
 	Genre      string
 }
 
-type movieID int
+type MovieID int

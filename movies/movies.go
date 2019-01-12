@@ -22,7 +22,7 @@ func (f *moviesFacade) Add(createMovie CreateMovie) (CreatedMovieDTO, error) {
 	return f.createdMovieDTO(movie.ID), nil
 }
 
-func (f *moviesFacade) Get(movieID movieID) (MovieDTO, error) {
+func (f *moviesFacade) Get(movieID MovieID) (MovieDTO, error) {
 	movie, err := f.repository.Find(movieID)
 	if err != nil {
 		return MovieDTO{}, errors.WithMessage(err, "error adding movie")
@@ -51,7 +51,7 @@ func (f *moviesFacade) toMoviesDTO(movies []movie) []MovieDTO {
 	return result
 }
 
-func (f *moviesFacade) createdMovieDTO(movie movieID) CreatedMovieDTO {
+func (f *moviesFacade) createdMovieDTO(movie MovieID) CreatedMovieDTO {
 	return CreatedMovieDTO{int(movie)}
 }
 

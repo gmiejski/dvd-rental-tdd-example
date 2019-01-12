@@ -1,6 +1,7 @@
 package users
 
 import (
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -13,7 +14,7 @@ func TestRetrievingAddedUser(t *testing.T) {
 	require.NoError(t, err)
 
 	// when
-	user, err := usersFacade.Get(userID(createdUser.ID))
+	user, err := usersFacade.Get(createdUser.ID)
 
 	// then
 	require.NoError(t, err)
@@ -29,4 +30,5 @@ func TestErrorWhenUserNotFound(t *testing.T) {
 
 	// then
 	require.Error(t, err)
+	require.IsType(t, UserNotFound{}, errors.Cause(err))
 }

@@ -20,17 +20,20 @@ func (f *usersFacade) Add(createUser CreateUser) (CreatedUserDTO, error) {
 	return f.createdUserDTO(user.ID), nil
 }
 
-func (f *usersFacade) Get(userID userID) (UserDTO, error) {
+func (f *usersFacade) Get(userID int) (UserDTO, error) {
 	user, err := f.repository.Find(userID)
 	if err != nil {
 		return UserDTO{}, errors.WithMessage(err, "error adding user")
 	}
+	if user == nil {
+		return UserDTO{}, UserNotFound{userID: int(userID)}
+	}
 	return f.userDTO(user), nil
 }
 
-func (f *usersFacade) createdUserDTO(user userID) CreatedUserDTO {
+func (f *usersFacade) createdUserDTO(user int) CreatedUserDTO {
 	return CreatedUserDTO{int(user)}
 }
-func (f *usersFacade) userDTO(user user) UserDTO {
+func (f *usersFacade) userDTO(user *user) UserDTO {
 	return UserDTO{ID: user.ID, Name: user.Name, Age: user.Age}
 }

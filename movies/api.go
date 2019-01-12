@@ -8,7 +8,7 @@ type CreateMovie struct {
 }
 
 type MovieDTO struct {
-	ID         movieID
+	ID         MovieID
 	Title      string
 	Year       int
 	MinimalAge int
@@ -38,6 +38,6 @@ type ListingDTO struct {
 
 type Facade interface {
 	Add(movie CreateMovie) (CreatedMovieDTO, error)
-	Get(movie movieID) (MovieDTO, error)
+	Get(movie MovieID) (MovieDTO, error)
 	ListGenre(request GenreListingRequest) (ListingDTO, error)
 }

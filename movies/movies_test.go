@@ -13,7 +13,7 @@ func TestRetrievingAddedMovie(t *testing.T) {
 	require.NoError(t, err)
 
 	// when
-	movie, err := moviesFacade.Get(movieID(createdMovie.ID))
+	movie, err := moviesFacade.Get(MovieID(createdMovie.ID))
 
 	// then
 	require.NoError(t, err)
