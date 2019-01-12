@@ -25,7 +25,7 @@ func (f *moviesFacade) Add(createMovie CreateMovie) (CreatedMovieDTO, error) {
 func (f *moviesFacade) Get(movieID MovieID) (MovieDTO, error) {
 	movie, err := f.repository.Find(movieID)
 	if err != nil {
-		return MovieDTO{}, errors.WithMessage(err, "error adding movie")
+		return MovieDTO{}, MovieNotFound{movieID: int(movieID)}
 	}
 	return f.movieDTO(movie), nil
 }

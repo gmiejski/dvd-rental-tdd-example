@@ -1,7 +1,5 @@
 package movies
 
-import "github.com/pkg/errors"
-
 type facadeStub struct {
 	movies map[int]MovieDTO
 }
@@ -12,7 +10,7 @@ func (f *facadeStub) Get(movieID MovieID) (MovieDTO, error) {
 			return movie, nil
 		}
 	}
-	return MovieDTO{}, errors.New("movie not found") // TODO make specific error
+	return MovieDTO{}, MovieNotFound{movieID: int(movieID)}
 }
 
 func (f *facadeStub) ListGenre(request GenreListingRequest) (ListingDTO, error) {

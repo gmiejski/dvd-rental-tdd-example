@@ -1,6 +1,7 @@
 package movies
 
 import (
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -29,4 +30,5 @@ func TestErrorWhenMovieNotFound(t *testing.T) {
 
 	// then
 	require.Error(t, err)
+	require.IsType(t, errors.Cause(err), MovieNotFound{})
 }

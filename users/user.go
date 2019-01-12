@@ -5,5 +5,3 @@ type user struct {
 	Name string
 	Age  int
 }
-
-type userID int

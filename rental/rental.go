@@ -54,18 +54,21 @@ func (f *facade) Rent(userID int, movieID int) error {
 }
 
 func newUserRents(userID int) UserRents {
-	return UserRents{userID: userID}
+	return UserRents{userID: userID, rentedMovies: []rentedMovie{}}
 }
 
-func (f *facade) GetRented(userID int) (RentedMoviesDTO, error) {
-	rents, err := f.repository.Get(userID)
+func (f *facade) GetRented(userID int) (RentedMoviesDTO, error) { // TODO rename to Rents
+	if _, err := f.users.Get(userID); err != nil {
+		return RentedMoviesDTO{}, errors.Wrapf(err, "Error getting user: %d", userID)
+	}
+	rents, err := f.getUserRents(userID)
 	if err != nil {
 		return RentedMoviesDTO{}, errors.WithMessagef(err, "Error getting rented movies for user %d", userID)
 	}
 	return toDTO(rents), nil
 }
 
-func toDTO(rents *UserRents) RentedMoviesDTO {
+func toDTO(rents UserRents) RentedMoviesDTO {
 	rentedMovies := make([]RentedMovieDTO, 0)
 	for _, movie := range rents.rentedMovies {
 		rentedMovies = append(rentedMovies, toMovieDTO(movie))

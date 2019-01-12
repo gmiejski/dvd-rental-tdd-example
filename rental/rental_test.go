@@ -30,7 +30,6 @@ func TestReturningRentedMovies(t *testing.T) {
 	rentedMovies, err := facade.GetRented(userID)
 	require.NoError(t, err)
 	assert.EqualValues(t, []int{movieID}, getMoviesIDs(rentedMovies.Movies))
-
 }
 
 func TestReturnErrorWhenUserNotFound(t *testing.T) {
@@ -44,7 +43,51 @@ func TestReturnErrorWhenUserNotFound(t *testing.T) {
 
 	// then
 	require.Error(t, err)
-	require.IsType(t, errors.Cause(err), users.UserNotFound{})
+	require.IsType(t, users.UserNotFound{}, errors.Cause(err))
+}
+
+func TestReturnErrorWhenMovieNotFound(t *testing.T) {
+	// given
+	usersFacade := users.NewFacadeStub(
+		[]users.UserDTO{{ID: userID, Age: 25, Name: "Greg"}},
+	)
+	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})
+	facade := buildTestFacade(usersFacade, moviesFacade)
+
+	// when
+	err := facade.Rent(userID, movieID)
+
+	// then
+	require.Error(t, err)
+	require.IsType(t, movies.MovieNotFound{}, errors.Cause(err))
+}
+
+func TestErrorWhenGettingRentsOfNotExistingUser(t *testing.T) {
+	// given
+	facade := buildTestFacade(users.NewFacadeStub([]users.UserDTO{}), movies.NewFacadeStub([]movies.MovieDTO{}))
+
+	// when
+	rents, err := facade.GetRented(userID)
+
+	// then
+	require.Error(t, err)
+	require.IsType(t, users.UserNotFound{}, errors.Cause(err))
+	require.Empty(t, rents.Movies)
+}
+
+func TestReturnEmptyRentsIfUserHasNotRentedAnythingYet(t *testing.T) { // TODO split into files
+	// given
+	usersFacade := users.NewFacadeStub(
+		[]users.UserDTO{{ID: userID, Age: 25, Name: "Greg"}},
+	)
+	facade := buildTestFacade(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}))
+
+	// when
+	rents, err := facade.GetRented(userID)
+
+	// then
+	require.NoError(t, err)
+	require.Empty(t, rents.Movies)
 }
 
 func getMoviesIDs(rentedMovies []RentedMovieDTO) []int {

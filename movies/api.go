@@ -1,5 +1,7 @@
 package movies
 
+import "fmt"
+
 type CreateMovie struct {
 	Title      string
 	Year       int
@@ -40,4 +42,12 @@ type Facade interface {
 	Add(movie CreateMovie) (CreatedMovieDTO, error)
 	Get(movie MovieID) (MovieDTO, error)
 	ListGenre(request GenreListingRequest) (ListingDTO, error)
+}
+
+type MovieNotFound struct {
+	movieID int
+}
+
+func (err MovieNotFound) Error() string {
+	return fmt.Sprintf("Movie not found: %d", err.movieID)
 }
