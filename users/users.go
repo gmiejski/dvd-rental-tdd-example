@@ -13,14 +13,14 @@ type usersFacade struct {
 }
 
 func (f *usersFacade) Add(createUser CreateUser) (CreatedUserDTO, error) {
-	user, err := f.repository.Save(User{Name: createUser.Name, Age: createUser.Age})
+	user, err := f.repository.Save(user{Name: createUser.Name, Age: createUser.Age})
 	if err != nil {
 		return CreatedUserDTO{}, errors.WithMessage(err, "error adding user")
 	}
 	return f.createdUserDTO(user.ID), nil
 }
 
-func (f *usersFacade) Get(userID UserID) (UserDTO, error) {
+func (f *usersFacade) Get(userID userID) (UserDTO, error) {
 	user, err := f.repository.Find(userID)
 	if err != nil {
 		return UserDTO{}, errors.WithMessage(err, "error adding user")
@@ -28,9 +28,9 @@ func (f *usersFacade) Get(userID UserID) (UserDTO, error) {
 	return f.userDTO(user), nil
 }
 
-func (f *usersFacade) createdUserDTO(user UserID) CreatedUserDTO {
+func (f *usersFacade) createdUserDTO(user userID) CreatedUserDTO {
 	return CreatedUserDTO{int(user)}
 }
-func (f *usersFacade) userDTO(user User) UserDTO {
+func (f *usersFacade) userDTO(user user) UserDTO {
 	return UserDTO{ID: user.ID, Name: user.Name, Age: user.Age}
 }

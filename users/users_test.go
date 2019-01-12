@@ -13,7 +13,7 @@ func TestRetrievingAddedUser(t *testing.T) {
 	require.NoError(t, err)
 
 	// when
-	user, err := usersFacade.Get(UserID(createdUser.ID))
+	user, err := usersFacade.Get(userID(createdUser.ID))
 
 	// then
 	require.NoError(t, err)

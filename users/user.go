@@ -1,9 +1,9 @@
 package users
 
-type User struct {
-	ID   UserID
+type user struct {
+	ID   userID
 	Name string
 	Age  int
 }
 
-type UserID int
+type userID int

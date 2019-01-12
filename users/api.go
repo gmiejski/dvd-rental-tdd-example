@@ -6,7 +6,7 @@ type CreateUser struct {
 }
 
 type UserDTO struct {
-	ID   UserID
+	ID   userID
 	Name string
 	Age  int
 }
@@ -17,5 +17,5 @@ type CreatedUserDTO struct {
 
 type UsersFacade interface {
 	Add(user CreateUser) (CreatedUserDTO, error)
-	Get(user UserID) (UserDTO, error)
+	Get(user userID) (UserDTO, error)
 }
