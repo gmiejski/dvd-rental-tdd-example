@@ -1,6 +1,7 @@
 package domain_crud
 
 import (
+	"github.com/gmiejski/dvd-rental-tdd-example/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain_common"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
@@ -22,3 +23,13 @@ func getMoviesIDs(rentedMovies []domain_common.RentedMovieDTO) []int {
 	}
 	return movieIDs
 }
+
+func rentedMoviesIDs(facade domain_common.RentalFacade, userID int) []int {
+	rentedMovies, err := facade.GetRented(userID)
+	if err != nil {
+		panic(err.Error())
+	}
+	return getMoviesIDs(rentedMovies.Movies)
+}
+
+var noFeesFacade = func() fees.Facade { feesStub := fees.NewFacadeStub(); return &feesStub }()

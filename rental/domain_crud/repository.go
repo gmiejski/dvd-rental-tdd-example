@@ -9,7 +9,7 @@ type Repository interface {
 	Get(user int) (*UserRents, error)
 }
 
-func newInMemoryRepository() Repository {
+func NewInMemoryRepository() Repository {
 	return &inMemoryRepository{data: make(map[int]UserRents), lock: sync.Mutex{}}
 }
 

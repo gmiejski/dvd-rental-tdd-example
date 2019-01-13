@@ -80,9 +80,10 @@ func (f *facade) Rent(userID int, movieID int) error {
 		)
 	}
 
-	if fees, _ := f.fees.GetFees(userID); len(fees.Fees) > 0 {
+	dto, e := f.fees.GetFees(userID)
+	if userFees, _ := dto, e; len(userFees.Fees) > 0 {
 		return errors.Wrapf(
-			domain_common.UnpaidFees{UserID: userID, Movies: fees.OverrentMovieIDs()},
+			domain_common.UnpaidFees{UserID: userID, Movies: userFees.OverrentMovieIDs()},
 			"error renting movie %d",
 			movieID,
 		)

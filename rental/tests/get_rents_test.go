@@ -10,7 +10,7 @@ import (
 
 func TestErrorWhenGettingRentsOfNotExistingUser(t *testing.T) {
 	// given
-	facade := facadeBuilder(users.NewFacadeStub([]users.UserDTO{}), movies.NewFacadeStub([]movies.MovieDTO{}))
+	facade := facadeBuilder(users.NewFacadeStub([]users.UserDTO{}), movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade, 2)
 
 	// when
 	rents, err := facade.GetRented(userID)
@@ -26,7 +26,7 @@ func TestReturnEmptyRentsIfUserHasNotRentedAnythingYet(t *testing.T) {
 	usersFacade := users.NewFacadeStub(
 		[]users.UserDTO{adult},
 	)
-	facade := facadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}))
+	facade := facadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade, 2)
 
 	// when
 	rents, err := facade.GetRented(userID)

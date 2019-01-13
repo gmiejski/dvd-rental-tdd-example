@@ -14,15 +14,29 @@ type createFacadeFunc = func(users users.UsersFacade, movies movies.Facade) doma
 
 var facadeBuilder = buildPostgresCrudTestFacade
 
-func buildInMemoryCrudTestFacade(users users.UsersFacade, movies movies.Facade) domain_common.RentalFacade {
-	return domain_crud.BuildUnitTestFacade(users, movies)
+func buildInMemoryCrudTestFacade(
+	users users.UsersFacade,
+	movies movies.Facade,
+	fees fees.Facade,
+	maximumRentedMovies int,
+) domain_common.RentalFacade {
+	config := domain_crud.TestConfig()
+	config.MaxRentedMoviesCount = maximumRentedMovies
+
+	return domain_crud.BuildFacade(users, movies, fees, domain_crud.NewInMemoryRepository(), config)
 }
 
-func buildPostgresCrudTestFacade(users users.UsersFacade, movies movies.Facade) domain_common.RentalFacade {
-	feesStub := fees.NewFacadeStub()
+func buildPostgresCrudTestFacade(
+	users users.UsersFacade,
+	movies movies.Facade,
+	fees fees.Facade,
+	maximumRentedMovies int,
+) domain_common.RentalFacade {
 	config := domain_crud.TestConfig()
+	config.MaxRentedMoviesCount = maximumRentedMovies
 	clearPostgresDB(config)
-	return domain_crud.BuildFacade(users, movies, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
+
+	return domain_crud.BuildFacade(users, movies, fees, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
 }
 
 func clearPostgresDB(config domain_crud.Config) {

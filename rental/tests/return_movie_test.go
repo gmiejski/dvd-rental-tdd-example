@@ -14,7 +14,7 @@ func TestReturningRentedMovies(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
-	facade := facadeBuilder(usersFacade, moviesFacade)
+	facade := facadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
 	err := facade.Rent(userID, movieID)
 	require.NoError(t, err)
 	err = facade.Rent(userID, movieID2)
@@ -38,8 +38,7 @@ func TestReturningRentedMovies(t *testing.T) {
 func TestErrorReturningMovieAsNotExistingUser(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{})
-	facade := facadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}))
-
+	facade := facadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade, 2)
 	// when
 	err := facade.Return(userID, movieID)
 
@@ -52,20 +51,11 @@ func TestErrorReturningMovieNotRentedPreviously(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
-	facade := facadeBuilder(usersFacade, moviesFacade)
-
+	facade := facadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
 	// when
 	err := facade.Return(userID, movieID)
 
 	// then
 	require.Error(t, err)
 	require.IsType(t, domain_common.MovieIsNotRented{}, errors.Cause(err))
-}
-
-func rentedMoviesIDs(facade domain_common.RentalFacade, userID int) []int {
-	rentedMovies, err := facade.GetRented(userID)
-	if err != nil {
-		panic(err.Error())
-	}
-	return getMoviesIDs(rentedMovies.Movies)
 }

@@ -34,7 +34,7 @@ func BuildUnitTestFacade(users users.UsersFacade, movies movies.Facade, options 
 		users:      users,
 		movies:     movies,
 		fees:       &feesStub,
-		repository: newInMemoryRepository(),
+		repository: NewInMemoryRepository(),
 		config:     Config{MaxRentedMoviesCount: 10},
 	}
 
