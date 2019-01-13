@@ -1,11 +1,13 @@
 package rental
 
 import (
+	"github.com/gmiejski/dvd-rental-tdd-example/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
 const userID = 10
@@ -78,7 +80,7 @@ func TestCannotRentMoreMoviesThanMaximum(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
-	facade := buildTestFacadeWithConfig(usersFacade, moviesFacade, config{1})
+	facade := buildTestFacade(usersFacade, moviesFacade, withConfig(config{maxRentedMoviesCount: 1}))
 	err := facade.Rent(userID, movieID)
 	require.NoError(t, err)
 
@@ -88,6 +90,22 @@ func TestCannotRentMoreMoviesThanMaximum(t *testing.T) {
 	// then
 	require.Error(t, err)
 	require.IsType(t, MaximumMoviesRented{}, errors.Cause(err))
+}
+
+func TestErrorWhenUserHasUnpaidFees(t *testing.T) {
+	// given
+	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
+	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
+	feesFacade := fees.NewFacadeStub()
+	feesFacade.AddFee(userID, movieID, time.Now(), time.Now().Add(time.Hour), 100.00)
+	facade := buildTestFacade(usersFacade, moviesFacade, withFeesFacade(&feesFacade))
+
+	// when
+	err := facade.Rent(userID, movieID2)
+
+	// then
+	require.Error(t, err)
+	require.IsType(t, UnpaidFees{}, errors.Cause(err))
 }
 
 func getMoviesIDs(rentedMovies []RentedMovieDTO) []int {

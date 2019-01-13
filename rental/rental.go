@@ -2,11 +2,21 @@ package rental
 
 import (
 	"fmt"
+	"github.com/gmiejski/dvd-rental-tdd-example/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
 	"github.com/pkg/errors"
 	"time"
 )
+
+type UnpaidFees struct {
+	userID int
+	movies []int
+}
+
+func (err UnpaidFees) Error() string {
+	return fmt.Sprintf("User %d has unpaid fees for movies %v", err.userID, err.movies)
+}
 
 type MovieIsNotRented struct {
 	userID  int
@@ -32,7 +42,7 @@ type UserRents struct {
 	rentedMovies []rentedMovie
 }
 
-func (r *UserRents) rentMovie(movie movies.MovieDTO) error {
+func (r *UserRents) rentMovie(movie movies.MovieDTO) error { // TODO add movies anti corruption layer
 	now := time.Now()
 	if r.isMovieRented(int(movie.ID)) {
 		return errors.Errorf("User %d already rented movie %d", r.userID, movie.ID)
@@ -78,11 +88,12 @@ type facade struct {
 	movies     movies.Facade
 	repository repository
 	config     config
+	fees       fees.Facade
 }
 
 func (f *facade) Rent(userID int, movieID int) error {
 	if _, err := f.users.Get(userID); err != nil {
-		return errors.Wrapf(err, "Error getting user: %d", userID)
+		return errors.Wrapf(err, "Error getting user: %d", userID) // TODO move to f.getUserRents
 	}
 	movie, err := f.movies.Get(movies.MovieID(movieID))
 	if err != nil {
@@ -97,6 +108,13 @@ func (f *facade) Rent(userID int, movieID int) error {
 	if userRents.rentedCount() >= f.config.maxRentedMoviesCount {
 		return errors.Wrapf(
 			MaximumMoviesRented{userID: userID, max: f.config.maxRentedMoviesCount},
+			"error renting movie %d by user %d", movieID, userID,
+		)
+	}
+
+	if fees, _ := f.fees.GetFees(userID); len(fees.Fees) > 0 {
+		return errors.Wrapf(
+			UnpaidFees{userID: userID, movies: fees.OverrentMovieIDs()},
 			"error renting movie %d",
 			movieID,
 		)
@@ -171,20 +189,33 @@ func (f *facade) getUserRents(userID int) (UserRents, error) {
 	return *userRents, nil
 }
 
-func buildTestFacade(users users.UsersFacade, movies movies.Facade) RentalFacade {
-	return &facade{
-		users:      users,
-		movies:     movies,
-		repository: newInMemoryRepository(),
-		config:     config{maxRentedMoviesCount: 10},
+type testOptionFacade = func(*facade)
+
+var withConfig = func(c config) testOptionFacade {
+	return func(f *facade) {
+		f.config = c
 	}
 }
 
-func buildTestFacadeWithConfig(users users.UsersFacade, movies movies.Facade, config config) RentalFacade {
-	return &facade{
+var withFeesFacade = func(feesFacade fees.Facade) testOptionFacade {
+	return func(f *facade) {
+		f.fees = feesFacade
+	}
+}
+
+func buildTestFacade(users users.UsersFacade, movies movies.Facade, options ...testOptionFacade) RentalFacade {
+	fees := fees.NewFacadeStub()
+	baseTestFacade := &facade{
 		users:      users,
 		movies:     movies,
+		fees:       &fees,
 		repository: newInMemoryRepository(),
-		config:     config,
+		config:     config{maxRentedMoviesCount: 10},
 	}
+
+	for _, option := range options {
+		option(baseTestFacade)
+	}
+
+	return baseTestFacade
 }
