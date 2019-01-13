@@ -12,11 +12,11 @@ import (
 const userID = 10
 const movieID = 1272
 
+var adult = users.UserDTO{ID: userID, Age: 25, Name: "Greg"}
+
 func TestReturningRentedMovies(t *testing.T) {
 	// given
-	usersFacade := users.NewFacadeStub(
-		[]users.UserDTO{{ID: userID, Age: 25, Name: "Greg"}},
-	)
+	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub(
 		[]movies.MovieDTO{{ID: movieID, Title: "something", Year: 2000, MinimalAge: 0, Genre: "horror"}},
 	)
@@ -32,7 +32,7 @@ func TestReturningRentedMovies(t *testing.T) {
 	assert.EqualValues(t, []int{movieID}, getMoviesIDs(rentedMovies.Movies))
 }
 
-func TestReturnErrorWhenUserNotFound(t *testing.T) {
+func TestReturnErrorWhenRentingAsNotExistingUser(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})
@@ -46,11 +46,9 @@ func TestReturnErrorWhenUserNotFound(t *testing.T) {
 	require.IsType(t, users.UserNotFound{}, errors.Cause(err))
 }
 
-func TestReturnErrorWhenMovieNotFound(t *testing.T) {
+func TestReturnErrorWhenRentingNotExistingMovie(t *testing.T) {
 	// given
-	usersFacade := users.NewFacadeStub(
-		[]users.UserDTO{{ID: userID, Age: 25, Name: "Greg"}},
-	)
+	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})
 	facade := buildTestFacade(usersFacade, moviesFacade)
 
@@ -60,34 +58,6 @@ func TestReturnErrorWhenMovieNotFound(t *testing.T) {
 	// then
 	require.Error(t, err)
 	require.IsType(t, movies.MovieNotFound{}, errors.Cause(err))
-}
-
-func TestErrorWhenGettingRentsOfNotExistingUser(t *testing.T) {
-	// given
-	facade := buildTestFacade(users.NewFacadeStub([]users.UserDTO{}), movies.NewFacadeStub([]movies.MovieDTO{}))
-
-	// when
-	rents, err := facade.GetRented(userID)
-
-	// then
-	require.Error(t, err)
-	require.IsType(t, users.UserNotFound{}, errors.Cause(err))
-	require.Empty(t, rents.Movies)
-}
-
-func TestReturnEmptyRentsIfUserHasNotRentedAnythingYet(t *testing.T) { // TODO split into files
-	// given
-	usersFacade := users.NewFacadeStub(
-		[]users.UserDTO{{ID: userID, Age: 25, Name: "Greg"}},
-	)
-	facade := buildTestFacade(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}))
-
-	// when
-	rents, err := facade.GetRented(userID)
-
-	// then
-	require.NoError(t, err)
-	require.Empty(t, rents.Movies)
 }
 
 func getMoviesIDs(rentedMovies []RentedMovieDTO) []int {
