@@ -13,6 +13,6 @@ func main() {
 	moviesFacade := movies.BuildMoviesFacade()
 	feesFacade := fees.NewFacadeStub()
 
-	_ = rental.BuildFacade(usersFacade, moviesFacade, &feesFacade, rental.ProdConfig())
+	_ = rental.SetupProdRentals(usersFacade, moviesFacade, &feesFacade)
 
 }

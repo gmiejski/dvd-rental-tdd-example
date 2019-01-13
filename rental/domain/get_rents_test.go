@@ -1,4 +1,4 @@
-package rental
+package domain
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"

@@ -1,4 +1,4 @@
-package rental
+package domain
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/fees"
@@ -80,7 +80,7 @@ func TestCannotRentMoreMoviesThanMaximum(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
-	facade := buildTestFacade(usersFacade, moviesFacade, withConfig(config{maxRentedMoviesCount: 1}))
+	facade := buildTestFacade(usersFacade, moviesFacade, withConfig(Config{MaxRentedMoviesCount: 1}))
 	err := facade.Rent(userID, movieID)
 	require.NoError(t, err)
 

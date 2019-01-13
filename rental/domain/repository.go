@@ -1,4 +1,4 @@
-package rental
+package domain
 
 import (
 	"sync"

@@ -1,4 +1,4 @@
-package rental
+package domain
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/fees"
@@ -58,7 +58,7 @@ type facade struct {
 	users      users.UsersFacade
 	movies     movies.Facade
 	repository Repository
-	config     config
+	config     Config
 	fees       fees.Facade
 }
 
@@ -72,9 +72,9 @@ func (f *facade) Rent(userID int, movieID int) error {
 		return errors.Wrapf(err, "Error finding movie: %d", movieID)
 	}
 
-	if userRents.rentedCount() >= f.config.maxRentedMoviesCount {
+	if userRents.rentedCount() >= f.config.MaxRentedMoviesCount {
 		return errors.Wrapf(
-			MaximumMoviesRented{userID: userID, max: f.config.maxRentedMoviesCount},
+			MaximumMoviesRented{userID: userID, max: f.config.MaxRentedMoviesCount},
 			"error renting movie %d by user %d", movieID, userID,
 		)
 	}

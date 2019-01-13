@@ -4,7 +4,7 @@
 # TODO
 
 - [x] docker running tests
-- [ ] impl rentals in postgres
+- [x] impl rentals in postgres
 - [ ] HTTP for rentals
 - [ ] bus in memory
 - [ ] cassandra event sourced 

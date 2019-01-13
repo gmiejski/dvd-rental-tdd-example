@@ -1,16 +1,28 @@
-package rental
+package integration_tests
 
 import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/gmiejski/dvd-rental-tdd-example/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
+	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain"
+	"github.com/gmiejski/dvd-rental-tdd-example/rental/infrastructure"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
 )
+
+const userID = 10
+const movieID = 1272
+const movieID2 = 1273
+
+var adult = users.UserDTO{ID: userID, Age: 25, Name: "Greg"}
+
+var movie1 = movies.MovieDTO{ID: movieID, Title: "something", Year: 2000, MinimalAge: 0, Genre: "horror"}
+var movie2 = movies.MovieDTO{ID: movieID2, Title: "family fun", Year: 2010, MinimalAge: 0, Genre: "family"}
 
 func TestMain(m *testing.M) {
 	flag.Parse()
@@ -54,7 +66,7 @@ func TestReturningAllRentedMoviesIT(t *testing.T) { // TODO move together with H
 }
 
 func clearDB() {
-	db, err := sql.Open("postgres", TestConfig().postgresDSN)
+	db, err := sql.Open("postgres", domain.TestConfig().PostgresDSN)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -62,4 +74,28 @@ func clearDB() {
 	if err != nil {
 		panic(err.Error())
 	}
+}
+
+func BuildIntegrationTestFacade(usersFacade users.UsersFacade, moviesFacade movies.Facade) domain.RentalFacade {
+	feesStub := fees.NewFacadeStub()
+
+	config := domain.TestConfig()
+
+	return domain.BuildFacade(usersFacade, moviesFacade, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
+}
+
+func rentedMoviesIDs(facade domain.RentalFacade, userID int) []int {
+	rentedMovies, err := facade.GetRented(userID)
+	if err != nil {
+		panic(err.Error())
+	}
+	return getMoviesIDs(rentedMovies.Movies)
+}
+
+func getMoviesIDs(rentedMovies []domain.RentedMovieDTO) []int {
+	movieIDs := make([]int, 0)
+	for _, movie := range rentedMovies {
+		movieIDs = append(movieIDs, movie.MovieID)
+	}
+	return movieIDs
 }
