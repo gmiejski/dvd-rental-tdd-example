@@ -9,7 +9,7 @@ import (
 
 func TestRetrievingAddedUser(t *testing.T) {
 	// given
-	usersFacade := buildUsersFacade()
+	usersFacade := BuildUsersFacade()
 	createdUser, err := usersFacade.Add(CreateUser{Name: "Gabriel", Age: 18})
 	require.NoError(t, err)
 
@@ -23,7 +23,7 @@ func TestRetrievingAddedUser(t *testing.T) {
 
 func TestErrorWhenUserNotFound(t *testing.T) {
 	// given
-	usersFacade := buildUsersFacade()
+	usersFacade := BuildUsersFacade()
 
 	// when
 	_, err := usersFacade.Get(10)

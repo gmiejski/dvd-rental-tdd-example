@@ -9,7 +9,7 @@ import (
 
 func TestRetrievingAddedMovie(t *testing.T) {
 	// given
-	moviesFacade := buildMoviesFacade()
+	moviesFacade := BuildMoviesFacade()
 	createdMovie, err := moviesFacade.Add(CreateMovie{Title: "Saw", Year: 2017, MinimalAge: 18})
 	require.NoError(t, err)
 
@@ -23,7 +23,7 @@ func TestRetrievingAddedMovie(t *testing.T) {
 
 func TestErrorWhenMovieNotFound(t *testing.T) {
 	// given
-	moviesFacade := buildMoviesFacade()
+	moviesFacade := BuildMoviesFacade()
 
 	// when
 	_, err := moviesFacade.Get(10)

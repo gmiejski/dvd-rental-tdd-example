@@ -12,7 +12,7 @@ const family = "family"
 
 func TestListAllGenreMovies(t *testing.T) {
 	// given
-	moviesFacade := buildMoviesFacade()
+	moviesFacade := BuildMoviesFacade()
 	totalMovies := 5
 	movies := createMoviesWithGenre(totalMovies, horror)
 	for _, movie := range movies {
@@ -46,7 +46,7 @@ func TestListAllGenreMovies(t *testing.T) {
 
 func TestListOnlyMoviesFromSpecificGenre(t *testing.T) {
 	// given
-	moviesFacade := buildMoviesFacade()
+	moviesFacade := BuildMoviesFacade()
 	_, err := moviesFacade.Add(CreateMovie{Title: "Scary", MinimalAge: 18, Year: 2017, Genre: horror})
 	require.NoError(t, err)
 

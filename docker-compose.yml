@@ -36,3 +36,13 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
+
+  migration:
+    image: "brainly/mattes-migrate:3.0.1"
+    depends_on:
+      - database
+    volumes:
+      - ./migration:/migration
+    env_file:
+      - _env
+    command: -path /migration -database postgres://postgres:postgres@database:5432/dvd-rental-tdd-example?sslmode=disable -verbose up

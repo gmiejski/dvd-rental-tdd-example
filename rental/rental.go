@@ -9,56 +9,55 @@ import (
 )
 
 type UserRents struct {
-	userID       int
-	age          int
-	rentedMovies []rentedMovie
+	UserID       int
+	RentedMovies []RentedMovie
 }
 
 func (r *UserRents) rentMovie(movie movies.MovieDTO) error { // TODO add movies anti corruption layer
 	now := time.Now()
 	if r.isMovieRented(int(movie.ID)) {
-		return errors.Errorf("User %d already rented movie %d", r.userID, movie.ID)
+		return errors.Errorf("User %d already rented movie %d", r.UserID, movie.ID)
 	}
-	r.rentedMovies = append(r.rentedMovies, rentedMovie{movieID: int(movie.ID), rentedAt: now, returnAt: now.Add(time.Hour * 24 * 3)})
+	r.RentedMovies = append(r.RentedMovies, RentedMovie{MovieID: int(movie.ID), RentedAt: now, ReturnAt: now.Add(time.Hour * 24 * 3)})
 	return nil
 }
 
 func (r *UserRents) returnBack(movieID int) error {
 	if !r.isMovieRented(movieID) {
-		return errors.Wrapf(MovieIsNotRented{r.userID, movieID}, "error returning movie")
+		return errors.Wrapf(MovieIsNotRented{r.UserID, movieID}, "error returning movie")
 	}
-	var rentsAfterReturning []rentedMovie
-	for _, rentedMovie := range r.rentedMovies {
-		if rentedMovie.movieID != movieID {
+	var rentsAfterReturning []RentedMovie
+	for _, rentedMovie := range r.RentedMovies {
+		if rentedMovie.MovieID != movieID {
 			rentsAfterReturning = append(rentsAfterReturning, rentedMovie)
 		}
 	}
-	r.rentedMovies = rentsAfterReturning
+	r.RentedMovies = rentsAfterReturning
 	return nil
 }
 
 func (r *UserRents) isMovieRented(movieID int) bool {
-	for _, movie := range r.rentedMovies {
-		if movie.movieID == movieID {
+	for _, movie := range r.RentedMovies {
+		if movie.MovieID == movieID {
 			return true
 		}
 	}
 	return false
 }
 func (r *UserRents) rentedCount() int {
-	return len(r.rentedMovies)
+	return len(r.RentedMovies)
 }
 
-type rentedMovie struct {
-	movieID  int
-	rentedAt time.Time
-	returnAt time.Time
+type RentedMovie struct {
+	MovieID  int
+	RentedAt time.Time
+	ReturnAt time.Time
 }
 
 type facade struct {
 	users      users.UsersFacade
 	movies     movies.Facade
-	repository repository
+	repository Repository
 	config     config
 	fees       fees.Facade
 }
@@ -97,7 +96,7 @@ func (f *facade) Rent(userID int, movieID int) error {
 }
 
 func newUserRents(userID int) UserRents {
-	return UserRents{userID: userID, rentedMovies: []rentedMovie{}}
+	return UserRents{UserID: userID, RentedMovies: []RentedMovie{}}
 }
 
 func (f *facade) GetRented(userID int) (RentedMoviesDTO, error) { // TODO rename to Rents
@@ -127,14 +126,14 @@ func (f *facade) Return(userID int, movieID int) error {
 
 func toDTO(rents UserRents) RentedMoviesDTO {
 	rentedMovies := make([]RentedMovieDTO, 0)
-	for _, movie := range rents.rentedMovies {
+	for _, movie := range rents.RentedMovies {
 		rentedMovies = append(rentedMovies, toMovieDTO(movie))
 	}
 	return RentedMoviesDTO{Movies: rentedMovies}
 }
 
-func toMovieDTO(movie rentedMovie) RentedMovieDTO {
-	return RentedMovieDTO{MovieID: movie.movieID, RentedAt: movie.rentedAt, ReturnAt: movie.returnAt}
+func toMovieDTO(movie RentedMovie) RentedMovieDTO {
+	return RentedMovieDTO{MovieID: movie.MovieID, RentedAt: movie.RentedAt, ReturnAt: movie.ReturnAt}
 }
 
 func (f *facade) getUserRents(userID int) (UserRents, error) {

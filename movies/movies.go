@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func buildMoviesFacade() Facade {
+func BuildMoviesFacade() Facade {
 	return &moviesFacade{repository: newInMemoryRepository()}
 }
 

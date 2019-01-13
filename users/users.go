@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func buildUsersFacade() UsersFacade {
+func BuildUsersFacade() UsersFacade {
 	return &usersFacade{repository: newInMemoryRepository()}
 }
 

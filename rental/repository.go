@@ -4,12 +4,12 @@ import (
 	"sync"
 )
 
-type repository interface {
+type Repository interface {
 	Save(rents UserRents) error
 	Get(user int) (*UserRents, error)
 }
 
-func newInMemoryRepository() repository {
+func newInMemoryRepository() Repository {
 	return &inMemoryRepository{data: make(map[int]UserRents), lock: sync.Mutex{}}
 }
 
@@ -21,7 +21,7 @@ type inMemoryRepository struct {
 func (r *inMemoryRepository) Save(rentsToSave UserRents) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
-	r.data[rentsToSave.userID] = rentsToSave
+	r.data[rentsToSave.UserID] = rentsToSave
 	return nil
 }
 
@@ -29,7 +29,7 @@ func (r *inMemoryRepository) Get(user int) (*UserRents, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	for _, rents := range r.data {
-		if rents.userID == user {
+		if rents.UserID == user {
 			return &rents, nil
 		}
 	}
