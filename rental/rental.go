@@ -1,11 +1,21 @@
 package rental
 
 import (
+	"fmt"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
 	"github.com/pkg/errors"
 	"time"
 )
+
+type MovieIsNotRented struct {
+	userID  int
+	movieID int
+}
+
+func (err MovieIsNotRented) Error() string {
+	return fmt.Sprintf("Movie %d not rented by user %d", err.movieID, err.userID)
+}
 
 type UserRents struct {
 	userID       int
@@ -15,8 +25,34 @@ type UserRents struct {
 
 func (r *UserRents) rentMovie(movie movies.MovieDTO) error {
 	now := time.Now()
+	if r.isMovieRented(int(movie.ID)) {
+		return errors.Errorf("User %d already rented movie %d", r.userID, movie.ID)
+	}
 	r.rentedMovies = append(r.rentedMovies, rentedMovie{movieID: int(movie.ID), rentedAt: now, returnAt: now.Add(time.Hour * 24 * 3)})
 	return nil
+}
+
+func (r *UserRents) returnBack(movieID int) error {
+	if !r.isMovieRented(movieID) {
+		return errors.Wrapf(MovieIsNotRented{r.userID, movieID}, "error returning movie")
+	}
+	var rentsAfterReturning []rentedMovie
+	for _, rentedMovie := range r.rentedMovies {
+		if rentedMovie.movieID != movieID {
+			rentsAfterReturning = append(rentsAfterReturning, rentedMovie)
+		}
+	}
+	r.rentedMovies = rentsAfterReturning
+	return nil
+}
+
+func (r *UserRents) isMovieRented(movieID int) bool {
+	for _, movie := range r.rentedMovies {
+		if movie.movieID == movieID {
+			return true
+		}
+	}
+	return false
 }
 
 type rentedMovie struct {
@@ -66,6 +102,24 @@ func (f *facade) GetRented(userID int) (RentedMoviesDTO, error) { // TODO rename
 		return RentedMoviesDTO{}, errors.WithMessagef(err, "Error getting rented movies for user %d", userID)
 	}
 	return toDTO(rents), nil
+}
+
+func (f *facade) Return(userID int, movieID int) error {
+	if _, err := f.users.Get(userID); err != nil {
+		return errors.Wrapf(err, "Error getting user: %d", userID)
+	}
+
+	userRents, err := f.getUserRents(userID)
+	if err != nil {
+		return errors.Wrapf(err, "Error getting rented movies for user: %d", userID)
+	}
+
+	err = userRents.returnBack(movieID)
+	if err != nil {
+		return errors.WithMessagef(err, "error renting movie %d by user %d", movieID, userID)
+	}
+	err = f.repository.Save(userRents)
+	return errors.WithMessagef(err, "error renting movie %d by user %d", movieID, userID)
 }
 
 func toDTO(rents UserRents) RentedMoviesDTO {

@@ -4,22 +4,23 @@ import (
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
 const userID = 10
 const movieID = 1272
+const movieID2 = 1273
 
 var adult = users.UserDTO{ID: userID, Age: 25, Name: "Greg"}
 
-func TestReturningRentedMovies(t *testing.T) {
+var movie1 = movies.MovieDTO{ID: movieID, Title: "something", Year: 2000, MinimalAge: 0, Genre: "horror"}
+var movie2 = movies.MovieDTO{ID: movieID2, Title: "family fun", Year: 2010, MinimalAge: 0, Genre: "family"}
+
+func TestRentingSingleMovie(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
-	moviesFacade := movies.NewFacadeStub(
-		[]movies.MovieDTO{{ID: movieID, Title: "something", Year: 2000, MinimalAge: 0, Genre: "horror"}},
-	)
+	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
 	facade := buildTestFacade(usersFacade, moviesFacade)
 
 	// when
@@ -27,9 +28,7 @@ func TestReturningRentedMovies(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	rentedMovies, err := facade.GetRented(userID)
-	require.NoError(t, err)
-	assert.EqualValues(t, []int{movieID}, getMoviesIDs(rentedMovies.Movies))
+	require.ElementsMatch(t, []int{movieID}, rentedMoviesIDs(facade, userID))
 }
 
 func TestReturnErrorWhenRentingAsNotExistingUser(t *testing.T) {
@@ -58,6 +57,21 @@ func TestReturnErrorWhenRentingNotExistingMovie(t *testing.T) {
 	// then
 	require.Error(t, err)
 	require.IsType(t, movies.MovieNotFound{}, errors.Cause(err))
+}
+
+func TestErrorWhenRentingSameMovieTwice(t *testing.T) {
+	// given
+	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
+	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
+	facade := buildTestFacade(usersFacade, moviesFacade)
+	err := facade.Rent(userID, movieID)
+	require.NoError(t, err)
+
+	// when trying to rent same movie second time
+	err = facade.Rent(userID, movieID)
+
+	// then
+	require.Error(t, err)
 }
 
 func getMoviesIDs(rentedMovies []RentedMovieDTO) []int {

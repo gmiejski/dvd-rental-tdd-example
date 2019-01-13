@@ -15,4 +15,5 @@ type RentedMovieDTO struct {
 type RentalFacade interface {
 	Rent(userID int, movieID int) error
 	GetRented(userID int) (RentedMoviesDTO, error)
+	Return(userID int, movieID int) error
 }
