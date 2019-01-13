@@ -1,18 +1,25 @@
 package integration_tests
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gmiejski/dvd-rental-tdd-example/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
+	"github.com/gmiejski/dvd-rental-tdd-example/rental/api"
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain"
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/infrastructure"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
+	"net/http"
 	"os"
 	"testing"
+	"time"
 )
 
 const userID = 10
@@ -24,6 +31,12 @@ var adult = users.UserDTO{ID: userID, Age: 25, Name: "Greg"}
 var movie1 = movies.MovieDTO{ID: movieID, Title: "something", Year: 2000, MinimalAge: 0, Genre: "horror"}
 var movie2 = movies.MovieDTO{ID: movieID2, Title: "family fun", Year: 2010, MinimalAge: 0, Genre: "family"}
 
+var usersFacade = users.NewFacadeStub([]users.UserDTO{adult})
+var moviesFacade = movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
+var facade = BuildIntegrationTestFacade(usersFacade, moviesFacade)
+
+const testServerAddress = ":8000"
+
 func TestMain(m *testing.M) {
 	flag.Parse()
 
@@ -31,38 +44,50 @@ func TestMain(m *testing.M) {
 		fmt.Printf("Skipping integration tests")
 		return
 	}
+
+	go runServer()
+	waitForServiceRunning()
 	os.Exit(m.Run())
 }
 
-func TestRentingSingleMovieIT(t *testing.T) {
+func TestReturningAllRentedMoviesIT(t *testing.T) {
 	// given
 	clearDB()
-	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
-	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
-	facade := BuildIntegrationTestFacade(usersFacade, moviesFacade)
+	rentMovie(userID, movieID)
+	rentMovie(userID, movieID2)
 
 	// when
-	err := facade.Rent(userID, movieID)
-
+	rented := getRentedMovies(userID)
 	// then
-	require.NoError(t, err)
-	require.ElementsMatch(t, []int{movieID}, rentedMoviesIDs(facade, userID))
+
+	require.ElementsMatch(t, []int{movieID, movieID2}, getMoviesIDs(rented.Movies))
 }
 
-func TestReturningAllRentedMoviesIT(t *testing.T) { // TODO move together with HTTP
-	// given
-	clearDB()
-	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
-	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
-	facade := BuildIntegrationTestFacade(usersFacade, moviesFacade)
-	err := facade.Rent(userID, movieID)
-	require.NoError(t, err)
-	err = facade.Rent(userID, movieID2)
-	require.NoError(t, err)
-	// when // TODO fix this :D
-	// then
-	require.NoError(t, err)
-	require.ElementsMatch(t, []int{movieID, movieID2}, rentedMoviesIDs(facade, userID))
+func rentMovie(userID int, movie int) {
+	request := api.RentMovieRequest{MovieID: movie}
+	data, err := json.Marshal(request)
+	panicOnError(err)
+	rs, err := http.Post(fmt.Sprintf("http://localhost:8000/users/%d/rentals", userID), "application/json", bytes.NewBuffer(data))
+	panicOnError(err)
+	if rs.StatusCode != http.StatusOK {
+		panic(errors.Errorf("Wrong status code: %d", rs.StatusCode))
+	}
+}
+
+func getRentedMovies(userID int) domain.RentedMoviesDTO {
+	rs, err := http.Get(fmt.Sprintf("http://localhost:8000/users/%d/rentals", userID))
+	panicOnError(err)
+	rentedMovies := domain.RentedMoviesDTO{}
+	d := json.NewDecoder(rs.Body)
+	err = d.Decode(&rentedMovies)
+	panicOnError(err)
+	return rentedMovies
+}
+
+func panicOnError(err error) {
+	if err != nil {
+		panic(err.Error())
+	}
 }
 
 func clearDB() {
@@ -98,4 +123,54 @@ func getMoviesIDs(rentedMovies []domain.RentedMovieDTO) []int {
 		movieIDs = append(movieIDs, movie.MovieID)
 	}
 	return movieIDs
+}
+
+func waitForServiceRunning() {
+	healthy := Eventually(serviceRunning)
+	if !healthy {
+		panic("Unable to connect to server")
+	}
+}
+
+func serviceRunning() bool {
+	var url = "http://localhost:8000/"
+	resp, err := http.Get(url)
+	return err == nil && resp.StatusCode == http.StatusOK
+}
+func runServer() {
+	router := mux.NewRouter()
+	err := api.SetupHandlers(router, facade)
+	if err != nil {
+		panic(err.Error())
+	}
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	})
+	http.ListenAndServe(testServerAddress, router)
+}
+
+func Eventually(functionToCheck func() bool) bool {
+	timer := time.NewTimer(5 * time.Second)
+	ticker := time.NewTicker(time.Millisecond * 20)
+	checkPassed := make(chan bool)
+	defer timer.Stop()
+	defer ticker.Stop()
+
+	go func() {
+		checkPassed <- functionToCheck()
+	}()
+	for {
+		select {
+		case <-timer.C:
+			return false
+		case result := <-checkPassed:
+			if result {
+				return true
+			}
+		case <-ticker.C:
+			go func() {
+				checkPassed <- functionToCheck()
+			}()
+		}
+	}
 }

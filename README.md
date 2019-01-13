@@ -5,6 +5,6 @@
 
 - [x] docker running tests
 - [x] impl rentals in postgres
-- [ ] HTTP for rentals
+- [x] HTTP for rentals
 - [ ] bus in memory
 - [ ] cassandra event sourced 
