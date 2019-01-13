@@ -7,4 +7,4 @@
 - [x] impl rentals in postgres
 - [x] HTTP for rentals
 - [ ] bus in memory
-- [ ] cassandra event sourced 
+- [ ] mongodb event sourced

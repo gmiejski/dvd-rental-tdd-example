@@ -11,13 +11,13 @@ services:
     env_file:
       - _env
     environment:
-      WAIT_FOR_PORTS: database:5432 rabbitmq:5672
+      WAIT_FOR_PORTS: database:5432 mongodb:27017
     depends_on:
       - database
-      - rabbitmq
+      - mongodb
     links:
       - database
-      - rabbitmq
+      - mongodb
     command: ["wait-for-ports", "go", "run", "main.go"]
 
   database:
@@ -36,6 +36,18 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
+
+  mongodb:
+    image: mongo:latest
+    container_name: "mongodb"
+    environment:
+    - MONGO_DATA_DIR=/data/db
+    - MONGO_LOG_DIR=/dev/null
+    volumes:
+    - ./data/db:/data/db
+    ports:
+    - 27017:27017
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
 
   migration:
     image: "brainly/mattes-migrate:3.0.1"

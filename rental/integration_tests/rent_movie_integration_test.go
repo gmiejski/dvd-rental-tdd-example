@@ -9,7 +9,8 @@ import (
 	"github.com/gmiejski/dvd-rental-tdd-example/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/api"
-	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain"
+	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain_common"
+	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain_crud"
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/infrastructure"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
 	"github.com/gorilla/mux"
@@ -74,10 +75,10 @@ func rentMovie(userID int, movie int) {
 	}
 }
 
-func getRentedMovies(userID int) domain.RentedMoviesDTO {
+func getRentedMovies(userID int) domain_common.RentedMoviesDTO {
 	rs, err := http.Get(fmt.Sprintf("http://localhost:8000/users/%d/rentals", userID))
 	panicOnError(err)
-	rentedMovies := domain.RentedMoviesDTO{}
+	rentedMovies := domain_common.RentedMoviesDTO{}
 	d := json.NewDecoder(rs.Body)
 	err = d.Decode(&rentedMovies)
 	panicOnError(err)
@@ -91,7 +92,7 @@ func panicOnError(err error) {
 }
 
 func clearDB() {
-	db, err := sql.Open("postgres", domain.TestConfig().PostgresDSN)
+	db, err := sql.Open("postgres", domain_crud.TestConfig().PostgresDSN)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -101,15 +102,15 @@ func clearDB() {
 	}
 }
 
-func BuildIntegrationTestFacade(usersFacade users.UsersFacade, moviesFacade movies.Facade) domain.RentalFacade {
+func BuildIntegrationTestFacade(usersFacade users.UsersFacade, moviesFacade movies.Facade) domain_common.RentalFacade {
 	feesStub := fees.NewFacadeStub()
 
-	config := domain.TestConfig()
+	config := domain_crud.TestConfig()
 
-	return domain.BuildFacade(usersFacade, moviesFacade, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
+	return domain_crud.BuildFacade(usersFacade, moviesFacade, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
 }
 
-func rentedMoviesIDs(facade domain.RentalFacade, userID int) []int {
+func rentedMoviesIDs(facade domain_common.RentalFacade, userID int) []int {
 	rentedMovies, err := facade.GetRented(userID)
 	if err != nil {
 		panic(err.Error())
@@ -117,7 +118,7 @@ func rentedMoviesIDs(facade domain.RentalFacade, userID int) []int {
 	return getMoviesIDs(rentedMovies.Movies)
 }
 
-func getMoviesIDs(rentedMovies []domain.RentedMovieDTO) []int {
+func getMoviesIDs(rentedMovies []domain_common.RentedMovieDTO) []int {
 	movieIDs := make([]int, 0)
 	for _, movie := range rentedMovies {
 		movieIDs = append(movieIDs, movie.MovieID)

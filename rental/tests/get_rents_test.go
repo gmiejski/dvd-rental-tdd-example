@@ -1,4 +1,4 @@
-package domain
+package domain_crud
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
@@ -10,7 +10,7 @@ import (
 
 func TestErrorWhenGettingRentsOfNotExistingUser(t *testing.T) {
 	// given
-	facade := buildTestFacade(users.NewFacadeStub([]users.UserDTO{}), movies.NewFacadeStub([]movies.MovieDTO{}))
+	facade := facadeBuilder(users.NewFacadeStub([]users.UserDTO{}), movies.NewFacadeStub([]movies.MovieDTO{}))
 
 	// when
 	rents, err := facade.GetRented(userID)
@@ -26,7 +26,7 @@ func TestReturnEmptyRentsIfUserHasNotRentedAnythingYet(t *testing.T) {
 	usersFacade := users.NewFacadeStub(
 		[]users.UserDTO{adult},
 	)
-	facade := buildTestFacade(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}))
+	facade := facadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}))
 
 	// when
 	rents, err := facade.GetRented(userID)

@@ -1,8 +1,9 @@
-package domain
+package domain_crud
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
+	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain_common"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
@@ -23,7 +24,7 @@ func TestRentingSingleMovie(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
-	facade := buildTestFacade(usersFacade, moviesFacade)
+	facade := BuildUnitTestFacade(usersFacade, moviesFacade)
 
 	// when
 	err := facade.Rent(userID, movieID)
@@ -37,7 +38,7 @@ func TestReturnErrorWhenRentingAsNotExistingUser(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})
-	facade := buildTestFacade(usersFacade, moviesFacade)
+	facade := BuildUnitTestFacade(usersFacade, moviesFacade)
 
 	// when
 	err := facade.Rent(userID, movieID)
@@ -51,7 +52,7 @@ func TestReturnErrorWhenRentingNotExistingMovie(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})
-	facade := buildTestFacade(usersFacade, moviesFacade)
+	facade := BuildUnitTestFacade(usersFacade, moviesFacade)
 
 	// when
 	err := facade.Rent(userID, movieID)
@@ -65,7 +66,7 @@ func TestErrorWhenRentingSameMovieTwice(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
-	facade := buildTestFacade(usersFacade, moviesFacade)
+	facade := BuildUnitTestFacade(usersFacade, moviesFacade)
 	err := facade.Rent(userID, movieID)
 	require.NoError(t, err)
 
@@ -80,7 +81,7 @@ func TestCannotRentMoreMoviesThanMaximum(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
-	facade := buildTestFacade(usersFacade, moviesFacade, withConfig(Config{MaxRentedMoviesCount: 1}))
+	facade := BuildUnitTestFacade(usersFacade, moviesFacade, withConfig(Config{MaxRentedMoviesCount: 1}))
 	err := facade.Rent(userID, movieID)
 	require.NoError(t, err)
 
@@ -89,7 +90,7 @@ func TestCannotRentMoreMoviesThanMaximum(t *testing.T) {
 
 	// then
 	require.Error(t, err)
-	require.IsType(t, MaximumMoviesRented{}, errors.Cause(err))
+	require.IsType(t, domain_common.MaximumMoviesRented{}, errors.Cause(err))
 }
 
 func TestErrorWhenUserHasUnpaidFees(t *testing.T) {
@@ -98,17 +99,25 @@ func TestErrorWhenUserHasUnpaidFees(t *testing.T) {
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
 	feesFacade := fees.NewFacadeStub()
 	feesFacade.AddFee(userID, movieID, time.Now(), time.Now().Add(time.Hour), 100.00)
-	facade := buildTestFacade(usersFacade, moviesFacade, withFeesFacade(&feesFacade))
+	facade := BuildUnitTestFacade(usersFacade, moviesFacade, withFeesFacade(&feesFacade))
 
 	// when
 	err := facade.Rent(userID, movieID2)
 
 	// then
 	require.Error(t, err)
-	require.IsType(t, UnpaidFees{}, errors.Cause(err))
+	require.IsType(t, domain_common.UnpaidFees{}, errors.Cause(err))
 }
 
-func getMoviesIDs(rentedMovies []RentedMovieDTO) []int {
+func rentedMoviesIDs(facade domain_common.RentalFacade, userID int) []int {
+	rentedMovies, err := facade.GetRented(userID)
+	if err != nil {
+		panic(err.Error())
+	}
+	return getMoviesIDs(rentedMovies.Movies)
+}
+
+func getMoviesIDs(rentedMovies []domain_common.RentedMovieDTO) []int {
 	movieIDs := make([]int, 0)
 	for _, movie := range rentedMovies {
 		movieIDs = append(movieIDs, movie.MovieID)
