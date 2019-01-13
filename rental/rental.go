@@ -17,6 +17,15 @@ func (err MovieIsNotRented) Error() string {
 	return fmt.Sprintf("Movie %d not rented by user %d", err.movieID, err.userID)
 }
 
+type MaximumMoviesRented struct {
+	userID int
+	max    int
+}
+
+func (err MaximumMoviesRented) Error() string {
+	return fmt.Sprintf("User %d cannot rent more than %d mvoies", err.userID, err.max)
+}
+
 type UserRents struct {
 	userID       int
 	age          int
@@ -54,6 +63,9 @@ func (r *UserRents) isMovieRented(movieID int) bool {
 	}
 	return false
 }
+func (r *UserRents) rentedCount() int {
+	return len(r.rentedMovies)
+}
 
 type rentedMovie struct {
 	movieID  int
@@ -65,6 +77,7 @@ type facade struct {
 	users      users.UsersFacade
 	movies     movies.Facade
 	repository repository
+	config     config
 }
 
 func (f *facade) Rent(userID int, movieID int) error {
@@ -79,6 +92,14 @@ func (f *facade) Rent(userID int, movieID int) error {
 	userRents, err := f.getUserRents(userID)
 	if err != nil {
 		return errors.Wrapf(err, "Error getting rented movies for user: %d", userID)
+	}
+
+	if userRents.rentedCount() >= f.config.maxRentedMoviesCount {
+		return errors.Wrapf(
+			MaximumMoviesRented{userID: userID, max: f.config.maxRentedMoviesCount},
+			"error renting movie %d",
+			movieID,
+		)
 	}
 
 	err = userRents.rentMovie(movie)
@@ -151,5 +172,19 @@ func (f *facade) getUserRents(userID int) (UserRents, error) {
 }
 
 func buildTestFacade(users users.UsersFacade, movies movies.Facade) RentalFacade {
-	return &facade{users: users, movies: movies, repository: newInMemoryRepository()}
+	return &facade{
+		users:      users,
+		movies:     movies,
+		repository: newInMemoryRepository(),
+		config:     config{maxRentedMoviesCount: 10},
+	}
+}
+
+func buildTestFacadeWithConfig(users users.UsersFacade, movies movies.Facade, config config) RentalFacade {
+	return &facade{
+		users:      users,
+		movies:     movies,
+		repository: newInMemoryRepository(),
+		config:     config,
+	}
 }

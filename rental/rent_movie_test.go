@@ -74,6 +74,22 @@ func TestErrorWhenRentingSameMovieTwice(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestCannotRentMoreMoviesThanMaximum(t *testing.T) {
+	// given
+	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
+	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
+	facade := buildTestFacadeWithConfig(usersFacade, moviesFacade, config{1})
+	err := facade.Rent(userID, movieID)
+	require.NoError(t, err)
+
+	// when
+	err = facade.Rent(userID, movieID2)
+
+	// then
+	require.Error(t, err)
+	require.IsType(t, MaximumMoviesRented{}, errors.Cause(err))
+}
+
 func getMoviesIDs(rentedMovies []RentedMovieDTO) []int {
 	movieIDs := make([]int, 0)
 	for _, movie := range rentedMovies {
