@@ -1,0 +1,38 @@
+version: "3.4"
+
+services:
+  app:
+    image: docker.z-dn.net/golang-1.11-alpine
+    working_dir: /github.com/gmiejski/dvd-rental-tdd-example
+    volumes:
+      - .:/github.com/gmiejski/dvd-rental-tdd-example
+    ports:
+      - "5411:5411"
+    env_file:
+      - _env
+    environment:
+      WAIT_FOR_PORTS: database:5432 rabbitmq:5672
+    depends_on:
+      - database
+      - rabbitmq
+    links:
+      - database
+      - rabbitmq
+    command: ["wait-for-ports", "go", "run", "main.go"]
+
+  database:
+    image: "postgres:9.6-alpine"
+    environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DB=dvd-rental-tdd-example
+    ports:
+    - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    logging:
+      driver: none
+    ports:
+      - "15672:15672"
+      - "5672:5672"

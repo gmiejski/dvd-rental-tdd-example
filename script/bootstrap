@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -e
+
+docker-compose build
+docker-compose run --no-deps --rm app go mod download
+
+echo "Done."
