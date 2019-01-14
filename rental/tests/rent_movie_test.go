@@ -15,7 +15,7 @@ func TestRentingSingleMovie(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
-	facade := facadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
 
 	// when
 	err := facade.Rent(userID, movieID)
@@ -29,7 +29,7 @@ func TestReturnErrorWhenRentingAsNotExistingUser(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})
-	facade := facadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
 
 	// when
 	err := facade.Rent(userID, movieID)
@@ -43,7 +43,7 @@ func TestReturnErrorWhenRentingNotExistingMovie(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})
-	facade := facadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
 
 	// when
 	err := facade.Rent(userID, movieID)
@@ -57,7 +57,7 @@ func TestErrorWhenRentingSameMovieTwice(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
-	facade := facadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
 	err := facade.Rent(userID, movieID)
 	require.NoError(t, err)
 
@@ -72,7 +72,7 @@ func TestCannotRentMoreMoviesThanMaximum(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
-	facade := facadeBuilder(usersFacade, moviesFacade, noFeesFacade, 1)
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade, 1)
 	err := facade.Rent(userID, movieID)
 	require.NoError(t, err)
 
@@ -90,7 +90,7 @@ func TestErrorWhenUserHasUnpaidFees(t *testing.T) {
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
 	feesFacade := fees.NewFacadeStub()
 	feesFacade.AddFee(userID, movieID, time.Now(), time.Now().Add(time.Hour), 100.00)
-	facade := facadeBuilder(usersFacade, moviesFacade, &feesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, &feesFacade, 2)
 
 	// when
 	err := facade.Rent(userID, movieID2)

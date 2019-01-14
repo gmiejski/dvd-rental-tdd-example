@@ -110,14 +110,6 @@ func BuildIntegrationTestFacade(usersFacade users.UsersFacade, moviesFacade movi
 	return domain_crud.BuildFacade(usersFacade, moviesFacade, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
 }
 
-func rentedMoviesIDs(facade domain_common.RentalFacade, userID int) []int {
-	rentedMovies, err := facade.GetRented(userID)
-	if err != nil {
-		panic(err.Error())
-	}
-	return getMoviesIDs(rentedMovies.Movies)
-}
-
 func getMoviesIDs(rentedMovies []domain_common.RentedMovieDTO) []int {
 	movieIDs := make([]int, 0)
 	for _, movie := range rentedMovies {

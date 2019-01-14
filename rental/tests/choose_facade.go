@@ -15,9 +15,7 @@ import (
 	"time"
 )
 
-type createFacadeFunc = func(users users.UsersFacade, movies movies.Facade) domain_common.RentalFacade // TODO
-
-var facadeBuilder = buildEventSourcedTestFacade
+var currentFacadeBuilder = buildInMemoryCrudTestFacade
 
 func buildInMemoryCrudTestFacade(
 	users users.UsersFacade,
