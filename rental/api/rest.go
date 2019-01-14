@@ -17,13 +17,13 @@ type RentMovieRequest struct {
 
 func SetupHandlers(router *mux.Router, rentalFacade domain_common.RentalFacade) error {
 	router.Handle("/users/{user}/rentals", handlers.MethodHandler{
-		http.MethodPost: rentHandler(rentalFacade),
+		http.MethodPost: rentMovieHandler(rentalFacade),
 		http.MethodGet:  getRentalsHandler(rentalFacade),
 	})
 	return nil
 }
 
-func rentHandler(facade domain_common.RentalFacade) http.HandlerFunc {
+func rentMovieHandler(facade domain_common.RentalFacade) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		userID, _ := mux.Vars(request)["user"]
 
