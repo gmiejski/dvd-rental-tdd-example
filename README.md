@@ -7,7 +7,7 @@ Purpose of this project is to show a way of doing unit testing - the real one, t
 - gain maximum safety that your code works with minimal testing
 - make it easy to develop new features without breaking previous tests
 
-And one more thing - you can find blogs and presentations about how to make your tests keep those properties ([example](https://www.youtube.com/watch?v=EZ05e7EMOLM&index=67&list=WL&t=0s)).
+And one more thing - you can find blogs and presentations about how to make your tests keep those properties ([example](https://www.youtube.com/watch?v=EZ05e7EMOLM&index=67&list=WL&t)).
 BUT!!! I haven't found any real project using those practises to show all related and relevant stuff, so here it is!
 
 ## How to read?
@@ -97,6 +97,12 @@ This actually does not show correct numbers, but when you pass `-coverpkg=./... 
 # FAQ
 
 1. "This is not how you should write in GO!"
-- well, maybe - I'm coming from JVM word, where all those patterns can be written using much less code and it's more readable then. But in order to maintain properties of tests that I want to keep (immutable to refactor, etc), this is the only way of coding it for now, that works for me. Maybe one day somebody can 
+- well, maybe - I'm coming from JVM word, where all those patterns can be written using much less code and it's more readable then. But in order to maintain properties of tests that I want to keep (immutable to refactor, etc), this is the only way of coding it for now, that works for me. Maybe one day somebody can make it better
+- some thing in this repository are done specifically to make it easier showing relevant stuff
 2. "Have questions/want to discuss something"
 - You can find me on facebook - Grzesiek Miejski, or write an issue on Github -> I will be glad to respond!
+
+# Other sources that say the same thing
+
+* Uncle Bob dialog between 2 TDD-style guys - https://blog.cleancoder.com/uncle-bob/2017/10/03/TestContravariance.html
+* Theoretical presentation with history overview - https://www.youtube.com/watch?v=EZ05e7EMOLM&index=67&list=WL&t
