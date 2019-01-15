@@ -45,9 +45,15 @@ func BuildUnitTestFacade(users users.UsersFacade, movies movies.Facade, options 
 	return baseTestFacade
 }
 
-func TestConfig() Config {
+func IntegrationTestConfig() Config {
 	return Config{
 		PostgresDSN:          ensureEnv("POSTGRES_DSN"),
+		MaxRentedMoviesCount: 10,
+	}
+}
+
+func TestConfig() Config {
+	return Config{
 		MaxRentedMoviesCount: 10,
 	}
 }

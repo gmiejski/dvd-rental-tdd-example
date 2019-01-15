@@ -92,7 +92,7 @@ func panicOnError(err error) {
 }
 
 func clearDB() {
-	db, err := sql.Open("postgres", domain_crud.TestConfig().PostgresDSN)
+	db, err := sql.Open("postgres", domain_crud.IntegrationTestConfig().PostgresDSN)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -105,7 +105,7 @@ func clearDB() {
 func BuildIntegrationTestFacade(usersFacade users.UsersFacade, moviesFacade movies.Facade) domain_common.RentalFacade {
 	feesStub := fees.NewFacadeStub()
 
-	config := domain_crud.TestConfig()
+	config := domain_crud.IntegrationTestConfig()
 
 	return domain_crud.BuildFacade(usersFacade, moviesFacade, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
 }

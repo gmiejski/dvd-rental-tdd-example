@@ -72,6 +72,7 @@ One thing to clarify (that normally you don't cover all same paths using unit-in
 * how dependency modules are stubbed/mocked - [here](rental/domain_crud/config.go#BuildFacade) and [here](TODO)
 * see reporitory declared in [domain package](rental/domain_es/repository.go) but implemented in [infrastructure package](rental/infrastructure/mongo_repository.go) 
 (to keep domain not depending on infrastructure) 
+* each unit has it's own HTTP adapters, bus handler, etc (is sliced vertically, not horizontally in terms of layers)
 
 
 ## How to run all tests with coverage?

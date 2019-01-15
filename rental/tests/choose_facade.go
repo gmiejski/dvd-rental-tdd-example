@@ -37,7 +37,7 @@ func buildPostgresCrudTestFacade(
 	fees fees.Facade,
 	maximumRentedMovies int,
 ) domain_common.RentalFacade {
-	config := domain_crud.TestConfig()
+	config := domain_crud.IntegrationTestConfig()
 	config.MaxRentedMoviesCount = maximumRentedMovies
 	clearPostgresDB(config)
 
