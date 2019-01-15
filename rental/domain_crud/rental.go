@@ -15,11 +15,12 @@ type UserRents struct {
 }
 
 func (r *UserRents) rentMovie(movie movies.MovieDTO) error { // TODO add movies anti corruption layer
-	now := time.Now()
 	if r.isMovieRented(int(movie.ID)) {
 		return errors.Errorf("User %d already rented movie %d", r.UserID, movie.ID)
 	}
-	r.RentedMovies = append(r.RentedMovies, RentedMovie{MovieID: int(movie.ID), RentedAt: now, ReturnAt: now.Add(time.Hour * 24 * 3)})
+	now := time.Now()
+	returnAt := now.Add(time.Hour * 24 * 3) // TODO should be taken from elsewhere
+	r.RentedMovies = append(r.RentedMovies, RentedMovie{MovieID: int(movie.ID), RentedAt: now, ReturnAt: returnAt})
 	return nil
 }
 

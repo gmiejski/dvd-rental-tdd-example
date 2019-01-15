@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-var currentFacadeBuilder = buildEventSourcedTestFacade
+var currentFacadeBuilder = buildInMemoryCrudTestFacade
 
 func buildInMemoryCrudTestFacade(
 	users users.UsersFacade,
