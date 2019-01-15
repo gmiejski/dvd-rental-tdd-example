@@ -20,8 +20,6 @@ var adult = users.UserDTO{ID: userID, Age: 25, Name: "Greg"}
 var movie1 = movies.MovieDTO{ID: movieID, Title: "something", Year: 2000, MinimalAge: 0, Genre: "horror"}
 var movie2 = movies.MovieDTO{ID: movieID2, Title: "family fun", Year: 2010, MinimalAge: 0, Genre: "family"}
 
-// TODO write why this examples here
-
 func TestErrorWhenUserHasUnpaidFees(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
