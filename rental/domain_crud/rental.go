@@ -12,6 +12,7 @@ import (
 type UserRents struct {
 	UserID       int
 	RentedMovies []RentedMovie
+	userAge      int
 }
 
 func (r *UserRents) rentMovie(movie movies.MovieDTO) error { // TODO add movies anti corruption layer
@@ -90,6 +91,10 @@ func (f *facade) Rent(userID int, movieID int) error {
 		)
 	}
 
+	if userRents.userAge < movie.MinimalAge {
+		return errors.Wrapf(domain_common.TooYoungError{UserID: userID, MovieID: movieID, MovieAgeLimit: movie.MinimalAge}, "Error rentig movie")
+	}
+
 	err = userRents.rentMovie(movie)
 	if err != nil {
 		return errors.WithMessagef(err, "error renting movie %d by user %d", movieID, userID)
@@ -98,8 +103,8 @@ func (f *facade) Rent(userID int, movieID int) error {
 	return errors.WithMessagef(err, "error renting movie %d by user %d", movieID, userID)
 }
 
-func newUserRents(userID int) UserRents {
-	return UserRents{UserID: userID, RentedMovies: []RentedMovie{}}
+func newUserRents(userID int, age int) UserRents {
+	return UserRents{UserID: userID, RentedMovies: []RentedMovie{}, userAge: age}
 }
 
 func (f *facade) GetRented(userID int) (domain_common.RentedMoviesDTO, error) { // TODO rename to Rents
@@ -140,8 +145,11 @@ func toMovieDTO(movie RentedMovie) domain_common.RentedMovieDTO {
 }
 
 func (f *facade) getUserRents(userID int) (UserRents, error) {
-	if _, err := f.users.Get(userID); err != nil {
+	userAge := 0
+	if user, err := f.users.Get(userID); err != nil {
 		return UserRents{}, errors.Wrapf(err, "Error getting user: %d", userID)
+	} else {
+		userAge = user.Age
 	}
 
 	userRents, err := f.repository.Get(userID)
@@ -149,7 +157,8 @@ func (f *facade) getUserRents(userID int) (UserRents, error) {
 		return UserRents{}, err
 	}
 	if userRents == nil {
-		return newUserRents(userID), nil
+		return newUserRents(userID, userAge), nil
 	}
+	userRents.userAge = userAge
 	return *userRents, nil
 }

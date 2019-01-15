@@ -99,3 +99,17 @@ func TestErrorWhenUserHasUnpaidFees(t *testing.T) {
 	require.Error(t, err)
 	require.IsType(t, domain_common.UnpaidFees{}, errors.Cause(err))
 }
+
+func TestErrorRentingMovieWithAgeLimitNotReached(t *testing.T) {
+	// given
+	teenager := users.UserDTO{ID: 10, Name: "Hub", Age: 10}
+	usersFacade := users.NewFacadeStub([]users.UserDTO{teenager})
+	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{{ID: movieID, Genre: "super scary", Year: 2018, Title: "asddsa", MinimalAge: 11}})
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
+	// when
+	err := facade.Rent(userID, movieID)
+
+	// then
+	require.Error(t, err)
+	require.IsType(t, domain_common.TooYoungError{}, errors.Cause(err))
+}

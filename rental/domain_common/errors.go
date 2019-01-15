@@ -28,3 +28,13 @@ type MaximumMoviesRented struct {
 func (err MaximumMoviesRented) Error() string {
 	return fmt.Sprintf("User %d cannot rent more than %d mvoies", err.UserID, err.Max)
 }
+
+type TooYoungError struct {
+	UserID        int
+	MovieID       int
+	MovieAgeLimit int
+}
+
+func (err TooYoungError) Error() string {
+	return fmt.Sprintf("User %d too young for movie %d with required %d age", err.UserID, err.MovieID, err.MovieAgeLimit)
+}
