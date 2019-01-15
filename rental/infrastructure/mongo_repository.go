@@ -122,10 +122,10 @@ func getEventsList() map[string]func(string) domain_es.Event {
 	return eventBuilders
 }
 
-func NewMongoRepository() domain_es.Repository {
+func NewMongoRepository(address string) domain_es.Repository {
 
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	client, err := mongo.Connect(ctx, "mongodb://localhost:27017") // TODO ensure env
+	client, err := mongo.Connect(ctx, address)
 	if err != nil {
 		panic(err.Error())
 	}

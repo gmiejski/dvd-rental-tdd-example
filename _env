@@ -1,2 +1,2 @@
 POSTGRES_DSN=postgres://postgres:postgres@database:5432/dvd-rental-tdd-example?sslmode=disable
-RABBITMQ_HOSTNAME=amqp://guest:guest@rabbitmq:5672/
+MONGODB=mongodb://mongodb:27017

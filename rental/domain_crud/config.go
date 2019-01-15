@@ -47,22 +47,21 @@ func BuildUnitTestFacade(users users.UsersFacade, movies movies.Facade, options 
 
 func TestConfig() Config {
 	return Config{
-		PostgresDSN:          "postgresql://postgres:postgres@localhost:5432/dvd-rental-tdd-example?sslmode=disable", // TODO use docker host
+		PostgresDSN:          ensureEnv("POSTGRES_DSN"),
 		MaxRentedMoviesCount: 10,
 	}
 }
 
 func ProdConfig() Config {
 	return Config{
-		//PostgresDSN:          ensureEnv("POSTGRES_DSN"),// TODO use env dsn
-		PostgresDSN:          "postgresql://postgres:postgres@localhost:5432/dvd-rental-tdd-example?sslmode=disable", // use env dsn
+		PostgresDSN:          ensureEnv("POSTGRES_DSN"),
 		MaxRentedMoviesCount: 10,
 	}
 }
 
-func ensureEnv(name string) string { // TODO switch to envs
+func ensureEnv(name string) string {
 	value, exists := os.LookupEnv(name)
-	if value != "" || !exists {
+	if value == "" || !exists {
 		panic(fmt.Sprintf("Env not found: %s", name))
 	}
 	return value

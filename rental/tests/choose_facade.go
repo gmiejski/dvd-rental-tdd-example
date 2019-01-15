@@ -3,6 +3,7 @@ package domain_crud
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/gmiejski/dvd-rental-tdd-example/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/movies"
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain_common"
@@ -12,10 +13,11 @@ import (
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/mongo/readpref"
+	"os"
 	"time"
 )
 
-var currentFacadeBuilder = buildInMemoryCrudTestFacade
+var currentFacadeBuilder = buildEventSourcedTestFacade
 
 func buildInMemoryCrudTestFacade(
 	users users.UsersFacade,
@@ -48,14 +50,16 @@ func buildEventSourcedTestFacade(
 	fees fees.Facade,
 	maximumRentedMovies int,
 ) domain_common.RentalFacade {
-	clearMongoDB() // TODO make a proper config
+	clearMongoDB()
+	config := domain_es.NewConfig()
+	config.MaxRented = maximumRentedMovies
 
-	return domain_es.BuildFacade(users, movies, fees, infrastructure.NewMongoRepository(), maximumRentedMovies)
+	return domain_es.BuildFacade(users, movies, fees, infrastructure.NewMongoRepository(config.MongoDB), config)
 }
 
 func clearMongoDB() {
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	client, err := mongo.Connect(ctx, "mongodb://localhost:27017") // TODO ensure env
+	client, err := mongo.Connect(ctx, ensureEnv("MONGODB"))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -87,4 +91,12 @@ func clearPostgresDB(config domain_crud.Config) {
 	if err != nil {
 		panic(err.Error())
 	}
+}
+
+func ensureEnv(name string) string {
+	value, exists := os.LookupEnv(name)
+	if value == "" || !exists {
+		panic(fmt.Sprintf("Env not found: %s", name))
+	}
+	return value
 }
