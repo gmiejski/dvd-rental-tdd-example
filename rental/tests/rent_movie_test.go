@@ -25,7 +25,7 @@ func TestRentingSingleMovie(t *testing.T) {
 	require.ElementsMatch(t, []int{movieID}, rentedMoviesIDs(facade, userID))
 }
 
-func TestReturnErrorWhenRentingAsNotExistingUser(t *testing.T) {
+func TestErrorWhenRentingAsNotExistingUser(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})
@@ -39,7 +39,7 @@ func TestReturnErrorWhenRentingAsNotExistingUser(t *testing.T) {
 	require.IsType(t, users.UserNotFound{}, errors.Cause(err))
 }
 
-func TestReturnErrorWhenRentingNotExistingMovie(t *testing.T) {
+func TestErrorWhenRentingNotExistingMovie(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{})

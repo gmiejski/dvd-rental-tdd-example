@@ -21,7 +21,7 @@ func TestErrorWhenGettingRentsOfNotExistingUser(t *testing.T) {
 	require.Empty(t, rents.Movies)
 }
 
-func TestReturnEmptyRentsIfUserHasNotRentedAnythingYet(t *testing.T) {
+func TestEmptyRentsIfUserHasNotRentedAnythingYet(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub(
 		[]users.UserDTO{adult},
