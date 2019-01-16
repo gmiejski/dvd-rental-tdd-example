@@ -1,5 +1,35 @@
 # dvd-rental-tdd-example
 
+# TLDR
+
+> "Test behaviour not implementation"
+
+Run single set of tests using 3 different implementations:
+- crud based system with in-memory repository (unit tests)
+- crud based system with Postgres repository 
+- event sourcing system with MongoDB as a storage 
+
+Each time tests passes -> you know all 3 implementations are correct in terms of business requirements (keeping above 90% test coverage)
+
+1.  Run to setup dockers with postgres and Mongo:
+```
+./script/bootstrap
+./script/migrate
+./script/test
+```
+2. change `var currentFacadeBuilder = buildInMemoryCrudTestFacade` in [choose_facade.go](rental/tests/choose_facade.go#20) to `buildPostgresCrudTestFacade` and run `./script/test/`. Those tests acts as integration test right now.
+
+3. change `var currentFacadeBuilder = buildPostgresCrudTestFacade` in [choose_facade.go](rental/tests/choose_facade.go#20) to `buildEventSourcedTestFacade` and run `./script/test/`. Those tests acts as integration test right now.
+
+If you can completely change your implementation and tests passes, the same way you can safely refactor your code without breaking any tests!
+
+## Presentation
+
+This is a demonstration project for a purpose of presentation:
+https://www.slideshare.net/GrzegorzMiejski/tdd-done-right-tests-immutable-to-refactor-128144681
+
+With common terminology used, rules for BDD-style tests and more advices. 
+
 ## What is this project?
 
 Purpose of this project is to show a way of doing unit testing - the real one, that allows to:
