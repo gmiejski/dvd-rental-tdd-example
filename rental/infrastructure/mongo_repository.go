@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain_es"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/mongo/readpref"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"reflect"
 	"time"
 )
@@ -125,7 +126,8 @@ func getEventsList() map[string]func(string) domain_es.Event {
 func NewMongoRepository(address string) domain_es.Repository {
 
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	client, err := mongo.Connect(ctx, address)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(address))
+
 	if err != nil {
 		panic(err.Error())
 	}
@@ -134,17 +136,12 @@ func NewMongoRepository(address string) domain_es.Repository {
 
 	ctx, _ = context.WithTimeout(context.Background(), 5*time.Second)
 
-	if err != nil {
-		panic(err.Error())
-	}
-
-	ctx, _ = context.WithTimeout(context.Background(), 2*time.Second)
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		panic(err.Error())
 	}
 
-	events := getEventsList()
+	events := getEventsList() // TODO events used anywhere?
 
 	return &mongoRepository{collection: collection, events: events}
 }

@@ -11,8 +11,9 @@ import (
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/domain_es"
 	"github.com/gmiejski/dvd-rental-tdd-example/rental/infrastructure"
 	"github.com/gmiejski/dvd-rental-tdd-example/users"
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"os"
 	"time"
 )
@@ -59,18 +60,14 @@ func buildEventSourcedTestFacade(
 
 func clearMongoDB() {
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	client, err := mongo.Connect(ctx, ensureEnv("MONGODB"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(ensureEnv("MONGODB")))
+
 	if err != nil {
 		panic(err.Error())
 	}
 	collection := client.Database("dvd-rental").Collection("rentals")
 	ctx, _ = context.WithTimeout(context.Background(), 5*time.Second)
 
-	if err != nil {
-		panic(err.Error())
-	}
-
-	ctx, _ = context.WithTimeout(context.Background(), 2*time.Second)
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		panic(err.Error())
