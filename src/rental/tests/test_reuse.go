@@ -7,6 +7,8 @@ import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 )
 
+// TODO inline into files?
+
 const userID = 10
 const movieID = 1272
 const movieID2 = 1273

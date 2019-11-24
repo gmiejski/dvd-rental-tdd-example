@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	usersFacade := users.Build()
+	usersFacade := users.Build(users.NewInMemoryRepository()) // TODO
 	moviesFacade := movies.Build()
 	feesFacade := fees.Build()
 

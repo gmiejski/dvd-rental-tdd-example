@@ -4,22 +4,22 @@ import (
 	"sync"
 )
 
-type usersRepository interface {
-	Save(user user) (user, error)
-	Find(id int) (*user, error)
+type Repository interface {
+	Save(user User) (User, error)
+	Find(id int) (*User, error)
 }
 
-func newInMemoryRepository() usersRepository {
-	return &usersInMemoryRepository{data: make(map[int]user), lock: sync.Mutex{}, nextID: 1}
+func NewInMemoryRepository() Repository {
+	return &usersInMemoryRepository{data: make(map[int]User), lock: sync.Mutex{}, nextID: 1}
 }
 
 type usersInMemoryRepository struct {
-	data   map[int]user
+	data   map[int]User
 	lock   sync.Mutex
 	nextID int
 }
 
-func (r *usersInMemoryRepository) Save(user user) (user, error) {
+func (r *usersInMemoryRepository) Save(user User) (User, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -29,7 +29,7 @@ func (r *usersInMemoryRepository) Save(user user) (user, error) {
 	return user, nil
 }
 
-func (r *usersInMemoryRepository) Find(userID int) (*user, error) {
+func (r *usersInMemoryRepository) Find(userID int) (*User, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	for id, user := range r.data {

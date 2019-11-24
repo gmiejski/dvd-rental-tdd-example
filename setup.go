@@ -20,3 +20,5 @@ func Build( // TODO move it to rental module
 
 	return rental_crud.BuildFacade(usersFacade, moviesFacade, feesFacade, repository, config)
 }
+
+// TODO update docs, because some things must have changed

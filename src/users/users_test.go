@@ -7,9 +7,13 @@ import (
 	"testing"
 )
 
+func buildTestFacade() Facade {
+	return Build(NewInMemoryRepository())
+}
+
 func TestRetrievingAddedUser(t *testing.T) {
 	// given
-	usersFacade := Build()
+	usersFacade := buildTestFacade()
 	createdUser, err := usersFacade.Create(CreateUser{Name: "Gabriel", Age: 18})
 	require.NoError(t, err)
 
@@ -23,7 +27,7 @@ func TestRetrievingAddedUser(t *testing.T) {
 
 func TestErrorWhenUserNotFound(t *testing.T) {
 	// given
-	usersFacade := Build()
+	usersFacade := buildTestFacade()
 
 	// when
 	_, err := usersFacade.Find(10)
