@@ -65,7 +65,7 @@ func (r *mongoRepository) Get(user int) (*rental_es.UserRents, error) {
 		if err := cur.Decode(elem); err != nil {
 			return nil, err
 		}
-		saved.UserID = int(elem.Map()["user"].(int64))
+		saved.UserID = int(elem.Map()["user"].(int32))
 		saved.EventName = elem.Map()["event"].(string)
 		saved.Data = elem.Map()["data"].(string)
 

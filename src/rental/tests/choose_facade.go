@@ -25,7 +25,7 @@ func buildInMemoryCrudTestFacade(
 	users users.Facade,
 	movies movies.Facade,
 	fees fees.Facade,
-	maximumRentedMovies int,
+	maximumRentedMovies int, // TODO refactor maximumRentedMovies into ...Option
 ) rental.RentalFacade {
 	config := rental_crud.TestConfig()
 	config.MaxRentedMoviesCount = maximumRentedMovies
