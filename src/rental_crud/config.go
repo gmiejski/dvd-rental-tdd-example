@@ -28,7 +28,7 @@ var withFeesFacade = func(feesFacade fees.Facade) testOptionFacade {
 	}
 }
 
-func BuildUnitTestFacade(users users.Facade, movies movies.Facade, options ...testOptionFacade) rental.RentalFacade {
+func BuildUnitTestFacade(users users.Facade, movies movies.Facade, options ...testOptionFacade) rental.Facade {
 	feesStub := fees.Build()
 	baseTestFacade := &facade{
 		users:      users,
@@ -79,7 +79,7 @@ func BuildFacade(
 	feesFacade fees.Facade,
 	repository Repository,
 	config Config,
-) rental.RentalFacade {
+) rental.Facade {
 	return &facade{
 		users:      usersFacade,
 		movies:     moviesFacade,

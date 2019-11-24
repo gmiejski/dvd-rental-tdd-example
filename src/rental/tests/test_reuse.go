@@ -26,7 +26,7 @@ func getMoviesIDs(rentedMovies []rental.RentedMovieDTO) []int {
 	return movieIDs
 }
 
-func rentedMoviesIDs(facade rental.RentalFacade, userID int) []int {
+func rentedMoviesIDs(facade rental.Facade, userID int) []int {
 	rentedMovies, err := facade.GetRented(userID)
 	if err != nil {
 		panic(err.Error())

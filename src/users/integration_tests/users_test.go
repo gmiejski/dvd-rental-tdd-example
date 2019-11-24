@@ -7,7 +7,6 @@ import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users/infrastructure"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
@@ -21,7 +20,7 @@ func TestRetrievingAddedUser(t *testing.T) {
 	// given
 	clearDB()
 	usersFacade := buildIntegrationTestFacade()
-	createdUser, err := usersFacade.Create(users.CreateUser{Name: "Gabriel", Age: 18})
+	createdUser, err := usersFacade.Create(users.CreateUserCommand{Name: "Gabriel", Age: 18})
 	require.NoError(t, err)
 
 	// when
@@ -29,7 +28,7 @@ func TestRetrievingAddedUser(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.EqualValues(t, users.UserDTO{ID: createdUser.ID, Name: "Gabriel", Age: 18}, user)
+	require.EqualValues(t, users.UserDTO{ID: createdUser.ID, Name: "Gabriel", Age: 18}, user)
 }
 
 func TestErrorWhenUserNotFound(t *testing.T) {

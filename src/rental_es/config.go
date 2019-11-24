@@ -20,7 +20,7 @@ func BuildFacade(
 	feesFacade fees.Facade,
 	repository Repository,
 	config Config,
-) rental.RentalFacade {
+) rental.Facade {
 	return &eventSourcedFacade{
 		users:           usersFacade,
 		movies:          moviesFacade,

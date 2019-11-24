@@ -4,15 +4,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Build(repository Repository) Facade {
-	return &usersFacade{repository: repository}
-}
-
 type usersFacade struct {
 	repository Repository
 }
 
-func (f *usersFacade) Create(createUser CreateUser) (CreatedUserDTO, error) {
+func (f *usersFacade) Create(createUser CreateUserCommand) (CreatedUserDTO, error) {
 	user, err := f.repository.Save(User{Name: createUser.Name, Age: createUser.Age})
 	if err != nil {
 		return CreatedUserDTO{}, errors.WithMessage(err, "error adding User")

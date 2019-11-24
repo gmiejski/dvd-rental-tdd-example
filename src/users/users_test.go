@@ -2,7 +2,6 @@ package users
 
 import (
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -14,7 +13,7 @@ func buildTestFacade() Facade {
 func TestRetrievingAddedUser(t *testing.T) {
 	// given
 	usersFacade := buildTestFacade()
-	createdUser, err := usersFacade.Create(CreateUser{Name: "Gabriel", Age: 18})
+	createdUser, err := usersFacade.Create(CreateUserCommand{Name: "Gabriel", Age: 18})
 	require.NoError(t, err)
 
 	// when
@@ -22,7 +21,7 @@ func TestRetrievingAddedUser(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.EqualValues(t, UserDTO{ID: 1, Name: "Gabriel", Age: 18}, user)
+	require.EqualValues(t, UserDTO{ID: createdUser.ID, Name: "Gabriel", Age: 18}, user)
 }
 
 func TestErrorWhenUserNotFound(t *testing.T) {

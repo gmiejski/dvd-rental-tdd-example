@@ -13,7 +13,7 @@ func Build( // TODO move it to rental module
 	usersFacade users.Facade,
 	moviesFacade movies.Facade,
 	feesFacade fees.Facade,
-) rental.RentalFacade {
+) rental.Facade {
 	config := rental_crud.ProdConfig()
 
 	repository := infrastructure.NewPostgresRepository(config.PostgresDSN)

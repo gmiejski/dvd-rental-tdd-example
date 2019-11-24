@@ -15,7 +15,7 @@ type RentMovieRequest struct {
 	MovieID int `json:"movieID"`
 }
 
-func SetupHandlers(router *mux.Router, rentalFacade rental.RentalFacade) error {
+func SetupHandlers(router *mux.Router, rentalFacade rental.Facade) error {
 	router.Handle("/users/{user}/rentals", handlers.MethodHandler{
 		http.MethodPost: rentMovieHandler(rentalFacade),
 		http.MethodGet:  getRentedMoviesHandler(rentalFacade),
@@ -23,7 +23,7 @@ func SetupHandlers(router *mux.Router, rentalFacade rental.RentalFacade) error {
 	return nil
 }
 
-func rentMovieHandler(facade rental.RentalFacade) http.HandlerFunc {
+func rentMovieHandler(facade rental.Facade) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		userID, _ := mux.Vars(request)["user"]
 
@@ -58,7 +58,7 @@ func rentMovieHandler(facade rental.RentalFacade) http.HandlerFunc {
 	}
 }
 
-func getRentedMoviesHandler(facade rental.RentalFacade) http.HandlerFunc {
+func getRentedMoviesHandler(facade rental.Facade) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		userID, _ := mux.Vars(request)["user"]
 

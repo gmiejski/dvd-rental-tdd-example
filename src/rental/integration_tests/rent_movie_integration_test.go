@@ -102,7 +102,7 @@ func clearDB() {
 	}
 }
 
-func BuildIntegrationTestFacade(usersFacade users.Facade, moviesFacade movies.Facade) rental.RentalFacade {
+func BuildIntegrationTestFacade(usersFacade users.Facade, moviesFacade movies.Facade) rental.Facade {
 	feesStub := fees.Build()
 
 	config := rental_crud.IntegrationTestConfig()

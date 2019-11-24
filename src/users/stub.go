@@ -4,7 +4,7 @@ type facadeStub struct {
 	users map[int]UserDTO
 }
 
-func (f *facadeStub) Create(user CreateUser) (CreatedUserDTO, error) {
+func (f *facadeStub) Create(user CreateUserCommand) (CreatedUserDTO, error) {
 	panic("implement me")
 }
 

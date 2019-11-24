@@ -2,7 +2,12 @@ package users
 
 import "fmt"
 
-type CreateUser struct {
+type Facade interface {
+	Create(user CreateUserCommand) (CreatedUserDTO, error)
+	Find(user int) (UserDTO, error)
+}
+
+type CreateUserCommand struct {
 	Name string
 	Age  int
 }
@@ -15,11 +20,6 @@ type UserDTO struct {
 
 type CreatedUserDTO struct {
 	ID int
-}
-
-type Facade interface {
-	Create(user CreateUser) (CreatedUserDTO, error)
-	Find(user int) (UserDTO, error)
 }
 
 type UserNotFound struct {

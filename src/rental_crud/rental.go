@@ -9,24 +9,26 @@ import (
 	"time"
 )
 
-type UserRents struct {
+type UserRents struct { // TODO hide inside module
 	UserID       int
 	RentedMovies []RentedMovie
 }
+
+var rentingTime = time.Hour * 24 * 3 // TODO should be taken from elsewhere
 
 func (r *UserRents) rentMovie(movie movies.MovieDTO) error { // TODO add movies anti corruption layer
 	if r.isMovieRented(int(movie.ID)) {
 		return errors.Errorf("User %d already rented movie %d", r.UserID, movie.ID)
 	}
 	now := time.Now()
-	returnAt := now.Add(time.Hour * 24 * 3) // TODO should be taken from elsewhere
+	returnAt := now.Add(rentingTime)
 	r.RentedMovies = append(r.RentedMovies, RentedMovie{MovieID: int(movie.ID), RentedAt: now, ReturnAt: returnAt})
 	return nil
 }
 
 func (r *UserRents) returnBack(movieID int) error {
 	if !r.isMovieRented(movieID) {
-		return errors.Wrapf(rental.MovieIsNotRented{r.UserID, movieID}, "error returning movie")
+		return errors.Wrapf(rental.MovieIsNotRented{UserID: r.UserID, MovieID: movieID}, "error returning movie")
 	}
 	var rentsAfterReturning []RentedMovie
 	for _, rentedMovie := range r.RentedMovies {

@@ -5,6 +5,14 @@ import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 )
 
+func NewPostgresRepository(dbDSN string) users.Repository {
+	db, err := sql.Open("postgres", dbDSN)
+	if err != nil {
+		panic(err.Error())
+	}
+	return &postgresRepository{db: db}
+}
+
 type postgresRepository struct {
 	db *sql.DB
 }
@@ -34,12 +42,4 @@ func (r *postgresRepository) Find(userID int) (*users.User, error) {
 		return nil, err
 	}
 	return &user, nil
-}
-
-func NewPostgresRepository(dbDSN string) users.Repository {
-	db, err := sql.Open("postgres", dbDSN)
-	if err != nil {
-		panic(err.Error())
-	}
-	return &postgresRepository{db: db}
 }

@@ -26,7 +26,7 @@ func buildInMemoryCrudTestFacade(
 	movies movies.Facade,
 	fees fees.Facade,
 	maximumRentedMovies int, // TODO refactor maximumRentedMovies into ...Option
-) rental.RentalFacade {
+) rental.Facade {
 	config := rental_crud.TestConfig()
 	config.MaxRentedMoviesCount = maximumRentedMovies
 
@@ -38,7 +38,7 @@ func buildPostgresCrudTestFacade(
 	movies movies.Facade,
 	fees fees.Facade,
 	maximumRentedMovies int,
-) rental.RentalFacade {
+) rental.Facade {
 	config := rental_crud.IntegrationTestConfig()
 	config.MaxRentedMoviesCount = maximumRentedMovies
 	clearPostgresDB(config)
@@ -51,7 +51,7 @@ func buildEventSourcedTestFacade(
 	movies movies.Facade,
 	fees fees.Facade,
 	maximumRentedMovies int,
-) rental.RentalFacade {
+) rental.Facade {
 	clearMongoDB()
 	config := rental_es.NewConfig()
 	config.MaxRented = maximumRentedMovies
