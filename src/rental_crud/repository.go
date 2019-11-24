@@ -1,4 +1,4 @@
-package domain_crud
+package rental_crud
 
 import (
 	"sync"

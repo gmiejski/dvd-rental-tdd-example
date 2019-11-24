@@ -76,7 +76,7 @@ This is an image of architecture:
 2. See what a unit [facade is](movies/api.go#L41)
 3. Run movies tests with coverage - see the high coverage percentage using only several tests
 4. What to see and do in `rental` module:
-* take a look at the Facade API - [here](rental/domain_common/api.go)
+* take a look at the Facade API - [here](rental/api.go)
 5. GO TO THE BIG THING!!!
 
 ## GO TO THE BIG THING!!!!
@@ -90,17 +90,17 @@ The main purpose of this project is to show how to write tests, where you can re
 2. Go to `rental/tests` into [test setup](rental/tests/choose_facade.go#20)
 Change `var currentFacadeBuilder` to values below to check 3 different implementations using same tests:
 - `var currentFacadeBuilder = buildInMemoryCrudTestFacade` - this runs real unit tests (without any dependency) and verifies you business logic works ok
-- `var currentFacadeBuilder = buildPostgresCrudTestFacade` - tests if `rental/domain_crud` business logic works fine using real Postgresql setup in docker. This actually turns this tests to integration tests, as we're testing integration with Postgresql
--  `var currentFacadeBuilder = buildEventSourcedTestFacade` - tests if `rental/domain_es` business logic works fine. It has completely different implementation than `rental/domain_crud` - based on event sourcing and MongoDB as a database.
+- `var currentFacadeBuilder = buildPostgresCrudTestFacade` - tests if `rental/rental_crud` business logic works fine using real Postgresql setup in docker. This actually turns this tests to integration tests, as we're testing integration with Postgresql
+-  `var currentFacadeBuilder = buildEventSourcedTestFacade` - tests if `rental/rental_es` business logic works fine. It has completely different implementation than `rental/rental_crud` - based on event sourcing and MongoDB as a database.
 
 RESULT? All tests passes - it shows that using those practises you can change your implementation, refactor your code safely and you won't have to touch your tests at all!
 
 One thing to clarify (that normally you don't cover all same paths using unit-in-memory tests and unit-aka-integration-test) TODO
 
 ### Other things to see:
-* overwrite config values to keep tests minimal using options pattern (make `maximumMoviesToRent==1`) - [here](rental/domain_crud/options_example_test.go) 
-* how dependency modules are stubbed/mocked - [here](rental/domain_crud/config.go#BuildFacade) and [here](TODO)
-* see reporitory declared in [domain package](rental/domain_es/repository.go) but implemented in [infrastructure package](rental/infrastructure/mongo_repository.go) 
+* overwrite config values to keep tests minimal using options pattern (make `maximumMoviesToRent==1`) - [here](rental/rental_crud/options_example_test.go) 
+* how dependency modules are stubbed/mocked - [here](rental/rental_crud/config.go#BuildFacade) and [here](TODO)
+* see reporitory declared in [domain package](rental/rental_es/repository.go) but implemented in [infrastructure package](rental/infrastructure/mongo_repository.go) 
 (to keep domain not depending on infrastructure) 
 * each unit has it's own HTTP adapters, bus handler, etc (is sliced vertically, not horizontally in terms of layers)
 

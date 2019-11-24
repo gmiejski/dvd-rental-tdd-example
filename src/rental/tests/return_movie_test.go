@@ -1,8 +1,8 @@
-package domain_crud
+package rental_crud
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_common"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -57,5 +57,5 @@ func TestErrorReturningMovieNotRentedPreviously(t *testing.T) {
 
 	// then
 	require.Error(t, err)
-	require.IsType(t, domain_common.MovieIsNotRented{}, errors.Cause(err))
+	require.IsType(t, rental.MovieIsNotRented{}, errors.Cause(err))
 }

@@ -1,9 +1,9 @@
-package domain_es
+package rental_es
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_common"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"github.com/pkg/errors"
 )
@@ -28,7 +28,7 @@ func (f *eventSourcedFacade) Rent(userID int, movieID int) error {
 
 	if userRents.rentedCount() >= f.maxRentedMovies {
 		return errors.Wrapf(
-			domain_common.MaximumMoviesRented{UserID: userID, Max: f.maxRentedMovies},
+			rental.MaximumMoviesRented{UserID: userID, Max: f.maxRentedMovies},
 			"error renting movie %d by user %d", movieID, userID,
 		)
 	}
@@ -36,7 +36,7 @@ func (f *eventSourcedFacade) Rent(userID int, movieID int) error {
 	dto, e := f.fees.GetFees(userID)
 	if userFees, _ := dto, e; len(userFees.Fees) > 0 {
 		return errors.Wrapf(
-			domain_common.UnpaidFees{UserID: userID, Movies: userFees.OverrentMovieIDs()},
+			rental.UnpaidFees{UserID: userID, Movies: userFees.OverrentMovieIDs()},
 			"error renting movie %d",
 			movieID,
 		)
@@ -50,13 +50,13 @@ func (f *eventSourcedFacade) Rent(userID int, movieID int) error {
 	return errors.WithMessagef(err, "error renting movie %d by user %d", movieID, userID)
 }
 
-func (f *eventSourcedFacade) GetRented(userID int) (domain_common.RentedMoviesDTO, error) { // TODO rename to Rents
+func (f *eventSourcedFacade) GetRented(userID int) (rental.RentedMoviesDTO, error) { // TODO rename to Rents
 	if _, err := f.users.Find(userID); err != nil {
-		return domain_common.RentedMoviesDTO{}, errors.Wrapf(err, "Error getting user: %d", userID)
+		return rental.RentedMoviesDTO{}, errors.Wrapf(err, "Error getting user: %d", userID)
 	}
 	rents, err := f.getUserRents(userID)
 	if err != nil {
-		return domain_common.RentedMoviesDTO{}, errors.WithMessagef(err, "Error getting rented movies for user %d", userID)
+		return rental.RentedMoviesDTO{}, errors.WithMessagef(err, "Error getting rented movies for user %d", userID)
 	}
 	return toDTO(rents), nil
 }
@@ -75,16 +75,16 @@ func (f *eventSourcedFacade) Return(userID int, movieID int) error {
 	return errors.WithMessagef(err, "error renting movie %d by user %d", movieID, userID)
 }
 
-func toDTO(rents UserRents) domain_common.RentedMoviesDTO {
-	rentedMovies := make([]domain_common.RentedMovieDTO, 0)
+func toDTO(rents UserRents) rental.RentedMoviesDTO {
+	rentedMovies := make([]rental.RentedMovieDTO, 0)
 	for _, movie := range rents.RentedMovies {
 		rentedMovies = append(rentedMovies, toMovieDTO(movie))
 	}
-	return domain_common.RentedMoviesDTO{Movies: rentedMovies}
+	return rental.RentedMoviesDTO{Movies: rentedMovies}
 }
 
-func toMovieDTO(movie RentedMovie) domain_common.RentedMovieDTO {
-	return domain_common.RentedMovieDTO{MovieID: movie.MovieID, RentedAt: movie.RentedAt, ReturnAt: movie.ReturnAt}
+func toMovieDTO(movie RentedMovie) rental.RentedMovieDTO {
+	return rental.RentedMovieDTO{MovieID: movie.MovieID, RentedAt: movie.RentedAt, ReturnAt: movie.ReturnAt}
 }
 
 func (f *eventSourcedFacade) getUserRents(userID int) (UserRents, error) {

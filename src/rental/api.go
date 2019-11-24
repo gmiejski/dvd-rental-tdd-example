@@ -1,4 +1,4 @@
-package domain_common
+package rental
 
 import "time"
 

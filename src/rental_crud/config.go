@@ -1,10 +1,10 @@
-package domain_crud
+package rental_crud
 
 import (
 	"fmt"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_common"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"os"
 )
@@ -28,7 +28,7 @@ var withFeesFacade = func(feesFacade fees.Facade) testOptionFacade {
 	}
 }
 
-func BuildUnitTestFacade(users users.Facade, movies movies.Facade, options ...testOptionFacade) domain_common.RentalFacade {
+func BuildUnitTestFacade(users users.Facade, movies movies.Facade, options ...testOptionFacade) rental.RentalFacade {
 	feesStub := fees.Build()
 	baseTestFacade := &facade{
 		users:      users,
@@ -79,7 +79,7 @@ func BuildFacade(
 	feesFacade fees.Facade,
 	repository Repository,
 	config Config,
-) domain_common.RentalFacade {
+) rental.RentalFacade {
 	return &facade{
 		users:      usersFacade,
 		movies:     moviesFacade,

@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/api"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"github.com/gorilla/mux"
@@ -17,7 +16,7 @@ func main() {
 	moviesFacade := movies.Build()
 	feesFacade := fees.Build()
 
-	rentalFacade := rental.Build(usersFacade, moviesFacade, &feesFacade)
+	rentalFacade := Build(usersFacade, moviesFacade, &feesFacade)
 
 	router := mux.NewRouter()
 

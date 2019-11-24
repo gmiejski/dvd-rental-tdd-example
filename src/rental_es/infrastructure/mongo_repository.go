@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_es"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental_es"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,7 +16,7 @@ import (
 
 type mongoRepository struct {
 	collection *mongo.Collection
-	events     map[string]func(json string) domain_es.Event
+	events     map[string]func(json string) rental_es.Event
 }
 
 type savedEvent struct {
@@ -25,7 +25,7 @@ type savedEvent struct {
 	Data      string `json:"data",bson:"data"`
 }
 
-func (r *mongoRepository) Save(userID int, eventsToSave []domain_es.Event) error {
+func (r *mongoRepository) Save(userID int, eventsToSave []rental_es.Event) error {
 	for _, event := range eventsToSave {
 		jsonValue, err := json.Marshal(event)
 
@@ -46,11 +46,11 @@ func (r *mongoRepository) Save(userID int, eventsToSave []domain_es.Event) error
 	return nil
 }
 
-func eventName(event domain_es.Event) string {
+func eventName(event rental_es.Event) string {
 	return reflect.TypeOf(event).Name()
 }
 
-func (r *mongoRepository) Get(user int) (*domain_es.UserRents, error) {
+func (r *mongoRepository) Get(user int) (*rental_es.UserRents, error) {
 	filter := bson.M{"user": user}
 
 	cur, err := r.collection.Find(context.Background(), filter)
@@ -58,7 +58,7 @@ func (r *mongoRepository) Get(user int) (*domain_es.UserRents, error) {
 	if err != nil {
 		return nil, err
 	}
-	var events []domain_es.Event
+	var events []rental_es.Event
 	for cur.Next(context.Background()) {
 		var saved savedEvent
 		elem := &bson.D{}
@@ -78,15 +78,15 @@ func (r *mongoRepository) Get(user int) (*domain_es.UserRents, error) {
 	if err := cur.Err(); err != nil {
 		return nil, err
 	}
-	rentals := domain_es.NewUserRents(user)
+	rentals := rental_es.NewUserRents(user)
 	rentals.Apply(events)
 	return &rentals, nil
 }
 
-func (r *mongoRepository) decodeEvents(event savedEvent) (domain_es.Event, error) {
+func (r *mongoRepository) decodeEvents(event savedEvent) (rental_es.Event, error) {
 	switch event.EventName {
 	case "MovieRentedEvent":
-		result := domain_es.MovieRentedEvent{}
+		result := rental_es.MovieRentedEvent{}
 		decoder := json.NewDecoder(bytes.NewBuffer([]byte(event.Data)))
 		err := decoder.Decode(&result)
 		if err != nil {
@@ -94,7 +94,7 @@ func (r *mongoRepository) decodeEvents(event savedEvent) (domain_es.Event, error
 		}
 		return result, nil
 	case "MovieReturnedEvent":
-		result := domain_es.MovieReturnedEvent{}
+		result := rental_es.MovieReturnedEvent{}
 		decoder := json.NewDecoder(bytes.NewBuffer([]byte(event.Data)))
 		err := decoder.Decode(&result)
 		if err != nil {
@@ -105,16 +105,16 @@ func (r *mongoRepository) decodeEvents(event savedEvent) (domain_es.Event, error
 	return nil, errors.Errorf("Cannot find event decoder for name: %s", event.EventName)
 }
 
-func getEventsList() map[string]func(string) domain_es.Event {
-	eventBuilders := map[string]func(string) domain_es.Event{
-		eventName(domain_es.MovieRentedEvent{}): func(jsonString string) domain_es.Event {
-			e := domain_es.MovieRentedEvent{}
+func getEventsList() map[string]func(string) rental_es.Event {
+	eventBuilders := map[string]func(string) rental_es.Event{
+		eventName(rental_es.MovieRentedEvent{}): func(jsonString string) rental_es.Event {
+			e := rental_es.MovieRentedEvent{}
 			d := json.NewDecoder(bytes.NewBuffer([]byte(jsonString)))
 			d.Decode(&e)
 			return e
 		},
-		eventName(domain_es.MovieReturnedEvent{}): func(jsonString string) domain_es.Event {
-			e := domain_es.MovieReturnedEvent{}
+		eventName(rental_es.MovieReturnedEvent{}): func(jsonString string) rental_es.Event {
+			e := rental_es.MovieReturnedEvent{}
 			d := json.NewDecoder(bytes.NewBuffer([]byte(jsonString)))
 			d.Decode(&e)
 			return e
@@ -123,7 +123,7 @@ func getEventsList() map[string]func(string) domain_es.Event {
 	return eventBuilders
 }
 
-func NewMongoRepository(address string) domain_es.Repository {
+func NewMongoRepository(address string) rental_es.Repository {
 
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(address))

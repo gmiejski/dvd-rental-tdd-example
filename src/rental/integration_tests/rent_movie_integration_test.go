@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/api"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_common"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_crud"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/infrastructure"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental_crud"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental_crud/infrastructure"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -75,10 +75,10 @@ func rentMovie(userID int, movie int) {
 	}
 }
 
-func getRentedMovies(userID int) domain_common.RentedMoviesDTO {
+func getRentedMovies(userID int) rental.RentedMoviesDTO {
 	rs, err := http.Get(fmt.Sprintf("http://localhost:8000/users/%d/rentals", userID))
 	panicOnError(err)
-	rentedMovies := domain_common.RentedMoviesDTO{}
+	rentedMovies := rental.RentedMoviesDTO{}
 	d := json.NewDecoder(rs.Body)
 	err = d.Decode(&rentedMovies)
 	panicOnError(err)
@@ -92,7 +92,7 @@ func panicOnError(err error) {
 }
 
 func clearDB() {
-	db, err := sql.Open("postgres", domain_crud.IntegrationTestConfig().PostgresDSN)
+	db, err := sql.Open("postgres", rental_crud.IntegrationTestConfig().PostgresDSN)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -102,15 +102,15 @@ func clearDB() {
 	}
 }
 
-func BuildIntegrationTestFacade(usersFacade users.Facade, moviesFacade movies.Facade) domain_common.RentalFacade {
+func BuildIntegrationTestFacade(usersFacade users.Facade, moviesFacade movies.Facade) rental.RentalFacade {
 	feesStub := fees.Build()
 
-	config := domain_crud.IntegrationTestConfig()
+	config := rental_crud.IntegrationTestConfig()
 
-	return domain_crud.BuildFacade(usersFacade, moviesFacade, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
+	return rental_crud.BuildFacade(usersFacade, moviesFacade, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
 }
 
-func getMoviesIDs(rentedMovies []domain_common.RentedMovieDTO) []int {
+func getMoviesIDs(rentedMovies []rental.RentedMovieDTO) []int {
 	movieIDs := make([]int, 0)
 	for _, movie := range rentedMovies {
 		movieIDs = append(movieIDs, movie.MovieID)

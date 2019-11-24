@@ -1,9 +1,9 @@
-package domain_crud
+package rental_crud
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_common"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
@@ -81,7 +81,7 @@ func TestCannotRentMoreMoviesThanMaximum(t *testing.T) {
 
 	// then
 	require.Error(t, err)
-	require.IsType(t, domain_common.MaximumMoviesRented{}, errors.Cause(err))
+	require.IsType(t, rental.MaximumMoviesRented{}, errors.Cause(err))
 }
 
 func TestErrorWhenUserHasUnpaidFees(t *testing.T) {
@@ -97,5 +97,5 @@ func TestErrorWhenUserHasUnpaidFees(t *testing.T) {
 
 	// then
 	require.Error(t, err)
-	require.IsType(t, domain_common.UnpaidFees{}, errors.Cause(err))
+	require.IsType(t, rental.UnpaidFees{}, errors.Cause(err))
 }

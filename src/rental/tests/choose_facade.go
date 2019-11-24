@@ -1,4 +1,4 @@
-package domain_crud
+package rental_crud
 
 import (
 	"context"
@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_common"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_crud"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_es"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/infrastructure"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental_crud"
+	rental_crud_infra "github.com/gmiejski/dvd-rental-tdd-example/src/rental_crud/infrastructure"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental_es"
+	rental_es_infra "github.com/gmiejski/dvd-rental-tdd-example/src/rental_es/infrastructure"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -25,11 +26,11 @@ func buildInMemoryCrudTestFacade(
 	movies movies.Facade,
 	fees fees.Facade,
 	maximumRentedMovies int,
-) domain_common.RentalFacade {
-	config := domain_crud.TestConfig()
+) rental.RentalFacade {
+	config := rental_crud.TestConfig()
 	config.MaxRentedMoviesCount = maximumRentedMovies
 
-	return domain_crud.BuildFacade(users, movies, fees, domain_crud.NewInMemoryRepository(), config)
+	return rental_crud.BuildFacade(users, movies, fees, rental_crud.NewInMemoryRepository(), config)
 }
 
 func buildPostgresCrudTestFacade(
@@ -37,12 +38,12 @@ func buildPostgresCrudTestFacade(
 	movies movies.Facade,
 	fees fees.Facade,
 	maximumRentedMovies int,
-) domain_common.RentalFacade {
-	config := domain_crud.IntegrationTestConfig()
+) rental.RentalFacade {
+	config := rental_crud.IntegrationTestConfig()
 	config.MaxRentedMoviesCount = maximumRentedMovies
 	clearPostgresDB(config)
 
-	return domain_crud.BuildFacade(users, movies, fees, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
+	return rental_crud.BuildFacade(users, movies, fees, rental_crud_infra.NewPostgresRepository(config.PostgresDSN), config)
 }
 
 func buildEventSourcedTestFacade(
@@ -50,12 +51,12 @@ func buildEventSourcedTestFacade(
 	movies movies.Facade,
 	fees fees.Facade,
 	maximumRentedMovies int,
-) domain_common.RentalFacade {
+) rental.RentalFacade {
 	clearMongoDB()
-	config := domain_es.NewConfig()
+	config := rental_es.NewConfig()
 	config.MaxRented = maximumRentedMovies
 
-	return domain_es.BuildFacade(users, movies, fees, infrastructure.NewMongoRepository(config.MongoDB), config)
+	return rental_es.BuildFacade(users, movies, fees, rental_es_infra.NewMongoRepository(config.MongoDB), config)
 }
 
 func clearMongoDB() {
@@ -79,7 +80,7 @@ func clearMongoDB() {
 	}
 }
 
-func clearPostgresDB(config domain_crud.Config) {
+func clearPostgresDB(config rental_crud.Config) {
 	db, err := sql.Open("postgres", config.PostgresDSN)
 	if err != nil {
 		panic(err.Error())

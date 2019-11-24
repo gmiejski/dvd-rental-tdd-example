@@ -1,9 +1,9 @@
-package domain_es
+package rental_es
 
 import (
 	"fmt"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_common"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/pkg/errors"
 	"time"
 )
@@ -39,7 +39,7 @@ func (r *UserRents) rentMovie(movie movies.MovieDTO) ([]Event, error) {
 
 func (r *UserRents) returnBack(movieID int) ([]Event, error) {
 	if !r.isMovieRented(movieID) {
-		return nil, errors.Wrapf(domain_common.MovieIsNotRented{r.UserID, movieID}, "error returning movie")
+		return nil, errors.Wrapf(rental.MovieIsNotRented{r.UserID, movieID}, "error returning movie")
 	}
 	eventsProduced := []Event{MovieReturnedEvent{UserID: r.UserID, MovieID: movieID}}
 	defer r.Apply(eventsProduced)

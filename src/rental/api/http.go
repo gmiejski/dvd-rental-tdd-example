@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/domain_common"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -15,7 +15,7 @@ type RentMovieRequest struct {
 	MovieID int `json:"movieID"`
 }
 
-func SetupHandlers(router *mux.Router, rentalFacade domain_common.RentalFacade) error {
+func SetupHandlers(router *mux.Router, rentalFacade rental.RentalFacade) error {
 	router.Handle("/users/{user}/rentals", handlers.MethodHandler{
 		http.MethodPost: rentMovieHandler(rentalFacade),
 		http.MethodGet:  getRentedMoviesHandler(rentalFacade),
@@ -23,7 +23,7 @@ func SetupHandlers(router *mux.Router, rentalFacade domain_common.RentalFacade) 
 	return nil
 }
 
-func rentMovieHandler(facade domain_common.RentalFacade) http.HandlerFunc {
+func rentMovieHandler(facade rental.RentalFacade) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		userID, _ := mux.Vars(request)["user"]
 
@@ -58,7 +58,7 @@ func rentMovieHandler(facade domain_common.RentalFacade) http.HandlerFunc {
 	}
 }
 
-func getRentedMoviesHandler(facade domain_common.RentalFacade) http.HandlerFunc {
+func getRentedMoviesHandler(facade rental.RentalFacade) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		userID, _ := mux.Vars(request)["user"]
 

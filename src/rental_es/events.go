@@ -1,4 +1,4 @@
-package domain_es
+package rental_es
 
 import "time"
 
