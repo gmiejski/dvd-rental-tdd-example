@@ -20,9 +20,9 @@ func (r *UserRents) rentMovie(movie movies.MovieDTO) error { // TODO add movies 
 	if r.isMovieRented(int(movie.ID)) {
 		return errors.Errorf("User %d already rented movie %d", r.UserID, movie.ID)
 	}
-	now := time.Now()
-	returnAt := now.Add(rentingTime)
-	r.RentedMovies = append(r.RentedMovies, RentedMovie{MovieID: int(movie.ID), RentedAt: now, ReturnAt: returnAt})
+	rentedAt := time.Now()
+	returnAt := rentedAt.Add(rentingTime)
+	r.RentedMovies = append(r.RentedMovies, RentedMovie{MovieID: int(movie.ID), RentedAt: rentedAt, ReturnAt: returnAt})
 	return nil
 }
 
@@ -83,8 +83,11 @@ func (f *facade) Rent(userID int, movieID int) error {
 		)
 	}
 
-	dto, e := f.fees.GetFees(userID)
-	if userFees, _ := dto, e; len(userFees.Fees) > 0 {
+	userFees, err := f.fees.GetFees(userID)
+	if err != nil {
+		return errors.Wrapf(err, "Error checking user fees: %d", userID)
+	}
+	if len(userFees.Fees) > 0 {
 		return errors.Wrapf(
 			rental.UnpaidFees{UserID: userID, Movies: userFees.OverrentMovieIDs()},
 			"error renting movie %d",

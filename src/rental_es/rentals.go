@@ -33,8 +33,11 @@ func (f *eventSourcedFacade) Rent(userID int, movieID int) error {
 		)
 	}
 
-	dto, e := f.fees.GetFees(userID)
-	if userFees, _ := dto, e; len(userFees.Fees) > 0 {
+	userFees, err := f.fees.GetFees(userID)
+	if err != nil {
+		return errors.Wrapf(err, "Error getting fees for user: %d", userID)
+	}
+	if len(userFees.Fees) > 0 {
 		return errors.Wrapf(
 			rental.UnpaidFees{UserID: userID, Movies: userFees.OverrentMovieIDs()},
 			"error renting movie %d",
