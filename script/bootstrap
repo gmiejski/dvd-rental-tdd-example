@@ -2,6 +2,6 @@
 set -e
 
 docker-compose build
-docker-compose run --no-deps --rm app go mod download
+docker-compose run --no-deps --rm dvd-rental-tdd-example go mod download
 
 echo "Done."

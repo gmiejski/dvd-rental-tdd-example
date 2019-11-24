@@ -1,8 +1,10 @@
 version: "3.4"
 
 services:
-  app:
-    image: golang:1.11-stretch
+  dvd-rental-tdd-example:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
     working_dir: /github.com/gmiejski/dvd-rental-tdd-example
     volumes:
       - .:/github.com/gmiejski/dvd-rental-tdd-example

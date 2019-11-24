@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/gmiejski/dvd-rental-tdd-example/fees"
-	"github.com/gmiejski/dvd-rental-tdd-example/movies"
-	"github.com/gmiejski/dvd-rental-tdd-example/rental"
-	"github.com/gmiejski/dvd-rental-tdd-example/rental/api"
-	"github.com/gmiejski/dvd-rental-tdd-example/users"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/api"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -13,16 +13,16 @@ import (
 
 func main() {
 
-	usersFacade := users.BuildUsersFacade()
-	moviesFacade := movies.BuildMoviesFacade()
-	feesFacade := fees.NewFacadeStub()
+	usersFacade := users.Build()
+	moviesFacade := movies.Build()
+	feesFacade := fees.Build()
 
-	rentalFacade := rental.SetupProdRentals(usersFacade, moviesFacade, &feesFacade)
+	rentalFacade := rental.Build(usersFacade, moviesFacade, &feesFacade)
 
 	router := mux.NewRouter()
 
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"status": "OK"}`))
+		_, _ = w.Write([]byte(`{"status": "OK"}`))
 	})
 	err := api.SetupHandlers(router, rentalFacade)
 	if err != nil {
