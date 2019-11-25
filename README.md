@@ -17,9 +17,9 @@ Each time tests passes -> you know all 3 implementations are correct in terms of
 ./script/migrate
 ./script/test
 ```
-2. change `var currentFacadeBuilder = buildInMemoryCrudTestFacade` in [choose_facade.go](rental/tests/choose_facade.go#20) to `buildPostgresCrudTestFacade` and run `./script/test/`. Those tests acts as integration test right now.
+2. change `var currentFacadeBuilder = buildInMemoryCrudTestFacade` in [choose_facade.go](src/rental/tests/choose_facade.go#20) to `buildPostgresCrudTestFacade` and run `./script/test/`. Those tests acts as integration test right now.
 
-3. change `var currentFacadeBuilder = buildPostgresCrudTestFacade` in [choose_facade.go](rental/tests/choose_facade.go#20) to `buildEventSourcedTestFacade` and run `./script/test/`. Those tests acts as integration test right now.
+3. change `var currentFacadeBuilder = buildPostgresCrudTestFacade` in [choose_facade.go](src/rental/tests/choose_facade.go#20) to `buildEventSourcedTestFacade` and run `./script/test/`. Those tests acts as integration test right now.
 
 If you can completely change your implementation and tests passes, the same way you can safely refactor your code without breaking any tests!
 
