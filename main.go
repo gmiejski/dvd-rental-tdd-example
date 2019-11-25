@@ -3,7 +3,10 @@ package main
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/rental/api"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental_crud"
+	"github.com/gmiejski/dvd-rental-tdd-example/src/rental_crud/infrastructure"
 	"github.com/gmiejski/dvd-rental-tdd-example/src/users"
 	"github.com/gorilla/mux"
 	"log"
@@ -12,11 +15,13 @@ import (
 
 func main() {
 
-	usersFacade := users.Build(users.NewInMemoryRepository()) // TODO
+	usersFacade := users.Build(users.NewInMemoryRepository()) // TODO use SQL implementation
 	moviesFacade := movies.Build()
 	feesFacade := fees.Build()
+	config := rental_crud.ProdConfig(rental.StandardConfig())
 
-	rentalFacade := Build(usersFacade, moviesFacade, feesFacade)
+	repository := infrastructure.NewPostgresRepository(config.PostgresDSN)
+	rentalFacade := rental_crud.Build(usersFacade, moviesFacade, feesFacade, repository, config)
 
 	router := mux.NewRouter()
 

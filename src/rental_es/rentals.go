@@ -53,7 +53,7 @@ func (f *eventSourcedFacade) Rent(userID int, movieID int) error {
 	return errors.WithMessagef(err, "error renting movie %d by user %d", movieID, userID)
 }
 
-func (f *eventSourcedFacade) GetRented(userID int) (rental.RentedMoviesDTO, error) { // TODO rename to Rents
+func (f *eventSourcedFacade) GetRented(userID int) (rental.RentedMoviesDTO, error) {
 	if _, err := f.users.Find(userID); err != nil {
 		return rental.RentedMoviesDTO{}, errors.Wrapf(err, "Error getting user: %d", userID)
 	}

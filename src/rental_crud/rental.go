@@ -107,7 +107,7 @@ func newUserRents(userID int) UserRents {
 	return UserRents{UserID: userID, RentedMovies: []RentedMovie{}}
 }
 
-func (f *facade) GetRented(userID int) (rental.RentedMoviesDTO, error) { // TODO rename to Rents
+func (f *facade) GetRented(userID int) (rental.RentedMoviesDTO, error) {
 	if _, err := f.users.Find(userID); err != nil {
 		return rental.RentedMoviesDTO{}, errors.Wrapf(err, "Error getting user: %d", userID)
 	}
