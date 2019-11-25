@@ -9,11 +9,11 @@ import (
 )
 
 type eventSourcedFacade struct {
-	users           users.Facade
-	movies          movies.Facade
-	fees            fees.Facade
-	repository      Repository
-	maxRentedMovies int
+	users      users.Facade
+	movies     movies.Facade
+	fees       fees.Facade
+	repository Repository
+	config     Config
 }
 
 func (f *eventSourcedFacade) Rent(userID int, movieID int) error {
@@ -26,9 +26,9 @@ func (f *eventSourcedFacade) Rent(userID int, movieID int) error {
 		return errors.Wrapf(err, "Error finding movie: %d", movieID)
 	}
 
-	if userRents.rentedCount() >= f.maxRentedMovies {
+	if userRents.rentedCount() >= f.config.MaxRentedMoviesCount {
 		return errors.Wrapf(
-			rental.MaximumMoviesRented{UserID: userID, Max: f.maxRentedMovies},
+			rental.MaximumMoviesRented{UserID: userID, Max: f.config.MaxRentedMoviesCount},
 			"error renting movie %d by user %d", movieID, userID,
 		)
 	}

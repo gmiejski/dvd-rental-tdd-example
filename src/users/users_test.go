@@ -10,7 +10,7 @@ func buildTestFacade() Facade {
 	return Build(NewInMemoryRepository())
 }
 
-func TestRetrievingAddedUser(t *testing.T) {
+func TestFindingUserAfterCreation(t *testing.T) {
 	// given
 	usersFacade := buildTestFacade()
 	createdUser, err := usersFacade.Create(CreateUserCommand{Name: "Gabriel", Age: 18})

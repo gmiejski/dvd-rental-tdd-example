@@ -1,4 +1,4 @@
-package rental_crud
+package rental
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
@@ -14,7 +14,7 @@ func TestReturningRentedMovies(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
-	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade)
 	err := facade.Rent(userID, movieID)
 	require.NoError(t, err)
 	err = facade.Rent(userID, movieID2)
@@ -38,7 +38,7 @@ func TestReturningRentedMovies(t *testing.T) {
 func TestErrorReturningMovieAsNotExistingUser(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{})
-	facade := currentFacadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade)
 	// when
 	err := facade.Return(userID, movieID)
 
@@ -51,7 +51,7 @@ func TestErrorReturningMovieNotRentedPreviously(t *testing.T) {
 	// given
 	usersFacade := users.NewFacadeStub([]users.UserDTO{adult})
 	moviesFacade := movies.NewFacadeStub([]movies.MovieDTO{movie1})
-	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, moviesFacade, noFeesFacade)
 	// when
 	err := facade.Return(userID, movieID)
 

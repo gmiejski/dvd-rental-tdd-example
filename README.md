@@ -73,21 +73,21 @@ This is an image of architecture:
 ## What to see in this project?
 
 1. take a high-level look at project units (aka modules, aka bounded context): users, movies, fees, rental
-2. See what a unit [facade is](movies/api.go#L41)
+2. See what a unit [facade is](src/users/api.go#L41)
 3. Run movies tests with coverage - see the high coverage percentage using only several tests
 4. What to see and do in `rental` module:
-* take a look at the Facade API - [here](rental/api.go)
+* take a look at the Facade API - [here](src/rental/api.go)
 5. GO TO THE BIG THING!!!
 
 ## GO TO THE BIG THING!!!!
 
 The main purpose of this project is to show how to write tests, where you can rewrite all you business logic (even using different architecture inside your unit) and without modifying tests you will know if your new implementation works the same way as previous one.
 
-1. Go to `rental` - there are 2 kind of tests:
+1. Go to `src/rental` - there are 2 kind of tests:
 - tests package holds unit tests that rental should pass
-- integration test - which check if unit correctly setups HTTP api implemented [here](rental/api/rest.go)
+- integration_tests - which check if unit correctly setups HTTP api implemented [here](src/rental/api/rest.go)
 
-2. Go to `rental/tests` into [test setup](rental/tests/choose_facade.go#20)
+2. Go to `rental/tests` into [test setup](src/rental/tests/choose_facade.go#20)
 Change `var currentFacadeBuilder` to values below to check 3 different implementations using same tests:
 - `var currentFacadeBuilder = buildInMemoryCrudTestFacade` - this runs real unit tests (without any dependency) and verifies you business logic works ok
 - `var currentFacadeBuilder = buildPostgresCrudTestFacade` - tests if `rental/rental_crud` business logic works fine using real Postgresql setup in docker. This actually turns this tests to integration tests, as we're testing integration with Postgresql
@@ -98,9 +98,9 @@ RESULT? All tests passes - it shows that using those practises you can change yo
 One thing to clarify (that normally you don't cover all same paths using unit-in-memory tests and unit-aka-integration-test) TODO
 
 ### Other things to see:
-* overwrite config values to keep tests minimal using options pattern (make `maximumMoviesToRent==1`) - [here](rental/rental_crud/options_example_test.go) 
-* how dependency modules are stubbed/mocked - [here](rental/rental_crud/config.go#BuildFacade) and [here](TODO)
-* see reporitory declared in [domain package](rental/rental_es/repository.go) but implemented in [infrastructure package](rental/infrastructure/mongo_repository.go) 
+* overwrite config values to keep tests minimal using options pattern (make `maximumMoviesToRent==1`) - [here](src/rental/tests/rent_movie_test.go#TestCannotRentMoreMoviesThanMaximum) 
+* how dependency modules are stubbed/mocked - [here](src/rental_crud/configuration.go#Build) and [here](TODO)
+* see reporitory declared in [domain package](src/rental_es/repository.go) but implemented in [infrastructure package](src/rental_es/infrastructure/mongo_repository.go) 
 (to keep domain not depending on infrastructure) 
 * each unit has it's own HTTP adapters, bus handler, etc (is sliced vertically, not horizontally in terms of layers)
 
@@ -129,7 +129,7 @@ This actually does not show correct numbers, but when you pass `-coverpkg=./... 
 
 1. "This is not how you should write in GO!"
 - well, maybe - I'm coming from JVM word, where all those patterns can be written using much less code and it's more readable then. But in order to maintain properties of tests that I want to keep (immutable to refactor, etc), this is the only way of coding it for now, that works for me. Maybe one day somebody can make it better
-- some thing in this repository are done specifically to make it easier showing relevant stuff
+- some thing in this repository are done specifically to make it easier to demonstrate specific things
 2. "Have questions/want to discuss something"
 - You can find me on facebook - Grzesiek Miejski, or write an issue on Github -> I will be glad to respond!
 

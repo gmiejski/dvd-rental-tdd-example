@@ -1,4 +1,4 @@
-package rental_crud
+package rental
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/movies"
@@ -10,7 +10,7 @@ import (
 
 func TestErrorWhenGettingRentsOfNotExistingUser(t *testing.T) {
 	// given
-	facade := currentFacadeBuilder(users.NewFacadeStub([]users.UserDTO{}), movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade, 2)
+	facade := currentFacadeBuilder(users.NewFacadeStub([]users.UserDTO{}), movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade)
 
 	// when
 	rents, err := facade.GetRented(userID)
@@ -26,7 +26,7 @@ func TestEmptyRentsIfUserHasNotRentedAnythingYet(t *testing.T) {
 	usersFacade := users.NewFacadeStub(
 		[]users.UserDTO{adult},
 	)
-	facade := currentFacadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade, 2)
+	facade := currentFacadeBuilder(usersFacade, movies.NewFacadeStub([]movies.MovieDTO{}), noFeesFacade)
 
 	// when
 	rents, err := facade.GetRented(userID)

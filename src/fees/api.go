@@ -23,4 +23,5 @@ func (fees UserFeesDTO) OverrentMovieIDs() []int {
 
 type Facade interface {
 	GetFees(userID int) (UserFeesDTO, error)
+	AddFee(userID int, movieID int, rentedAt time.Time, shouldReturnAt time.Time, cash float32)
 }

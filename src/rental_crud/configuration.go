@@ -1,4 +1,4 @@
-package rental_es
+package rental_crud
 
 import (
 	"fmt"
@@ -9,31 +9,44 @@ import (
 	"os"
 )
 
-type Config struct {
-	MongoDB   string
-	MaxRented int
-}
-
-func BuildFacade(
+func Build(
 	usersFacade users.Facade,
 	moviesFacade movies.Facade,
 	feesFacade fees.Facade,
 	repository Repository,
 	config Config,
 ) rental.Facade {
-	return &eventSourcedFacade{
-		users:           usersFacade,
-		movies:          moviesFacade,
-		fees:            feesFacade,
-		repository:      repository,
-		maxRentedMovies: config.MaxRented,
+	return &facade{
+		users:      usersFacade,
+		movies:     moviesFacade,
+		fees:       feesFacade,
+		repository: repository,
+		config:     config,
 	}
 }
 
-func NewConfig() Config {
+type Config struct {
+	rental.Config
+	PostgresDSN string
+}
+
+func IntegrationTestConfig(config rental.Config) Config {
 	return Config{
-		MongoDB:   ensureEnv("MONGODB"),
-		MaxRented: 10,
+		PostgresDSN: ensureEnv("POSTGRES_DSN"),
+		Config:      config,
+	}
+}
+
+func TestConfig(config rental.Config) Config {
+	return Config{
+		Config: config,
+	}
+}
+
+func ProdConfig(config rental.Config) Config {
+	return Config{
+		PostgresDSN: ensureEnv("POSTGRES_DSN"),
+		Config:      config,
 	}
 }
 

@@ -1,4 +1,4 @@
-package rental_crud
+package rental
 
 import (
 	"github.com/gmiejski/dvd-rental-tdd-example/src/fees"
@@ -34,4 +34,4 @@ func rentedMoviesIDs(facade rental.Facade, userID int) []int {
 	return getMoviesIDs(rentedMovies.Movies)
 }
 
-var noFeesFacade = func() fees.Facade { feesStub := fees.Build(); return &feesStub }()
+var noFeesFacade = func() fees.Facade { feesStub := fees.Build(); return feesStub }()

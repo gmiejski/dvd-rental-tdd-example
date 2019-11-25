@@ -1,4 +1,4 @@
-package rental_crud
+package rental
 
 import (
 	"context"
@@ -21,42 +21,33 @@ import (
 
 var currentFacadeBuilder = buildInMemoryCrudTestFacade
 
-func buildInMemoryCrudTestFacade(
-	users users.Facade,
-	movies movies.Facade,
-	fees fees.Facade,
-	maximumRentedMovies int, // TODO refactor maximumRentedMovies into ...Option
-) rental.Facade {
-	config := rental_crud.TestConfig()
-	config.MaxRentedMoviesCount = maximumRentedMovies
-
-	return rental_crud.BuildFacade(users, movies, fees, rental_crud.NewInMemoryRepository(), config)
+func buildInMemoryCrudTestFacade(users users.Facade, movies movies.Facade, fees fees.Facade, options ...rental.RentalOption) rental.Facade {
+	basicConfig := buildRentalConfig(options)
+	config := rental_crud.TestConfig(basicConfig)
+	return rental_crud.Build(users, movies, fees, rental_crud.NewInMemoryRepository(), config)
 }
 
-func buildPostgresCrudTestFacade(
-	users users.Facade,
-	movies movies.Facade,
-	fees fees.Facade,
-	maximumRentedMovies int,
-) rental.Facade {
-	config := rental_crud.IntegrationTestConfig()
-	config.MaxRentedMoviesCount = maximumRentedMovies
+func buildPostgresCrudTestFacade(users users.Facade, movies movies.Facade, fees fees.Facade, options ...rental.RentalOption) rental.Facade {
+	rentalConfig := buildRentalConfig(options)
+	config := rental_crud.IntegrationTestConfig(rentalConfig)
 	clearPostgresDB(config)
-
-	return rental_crud.BuildFacade(users, movies, fees, rental_crud_infra.NewPostgresRepository(config.PostgresDSN), config)
+	return rental_crud.Build(users, movies, fees, rental_crud_infra.NewPostgresRepository(config.PostgresDSN), config)
 }
 
-func buildEventSourcedTestFacade(
-	users users.Facade,
-	movies movies.Facade,
-	fees fees.Facade,
-	maximumRentedMovies int,
-) rental.Facade {
+func buildEventSourcedTestFacade(users users.Facade, movies movies.Facade, fees fees.Facade, options ...rental.RentalOption) rental.Facade {
 	clearMongoDB()
-	config := rental_es.NewConfig()
-	config.MaxRented = maximumRentedMovies
+	rentalConfig := buildRentalConfig(options)
+	config := rental_es.NewConfig(rentalConfig)
 
-	return rental_es.BuildFacade(users, movies, fees, rental_es_infra.NewMongoRepository(config.MongoDB), config)
+	return rental_es.Build(users, movies, fees, rental_es_infra.NewMongoRepository(config.MongoDB), config)
+}
+
+func buildRentalConfig(rentalOptions []rental.RentalOption) rental.Config {
+	config := rental.StandardConfig()
+	for _, x := range rentalOptions {
+		x(&config)
+	}
+	return config
 }
 
 func clearMongoDB() {

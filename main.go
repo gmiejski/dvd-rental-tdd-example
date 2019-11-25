@@ -16,7 +16,7 @@ func main() {
 	moviesFacade := movies.Build()
 	feesFacade := fees.Build()
 
-	rentalFacade := Build(usersFacade, moviesFacade, &feesFacade)
+	rentalFacade := Build(usersFacade, moviesFacade, feesFacade)
 
 	router := mux.NewRouter()
 

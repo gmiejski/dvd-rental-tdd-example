@@ -34,7 +34,9 @@ var movie2 = movies.MovieDTO{ID: movieID2, Title: "family fun", Year: 2010, Mini
 
 var usersFacade = users.NewFacadeStub([]users.UserDTO{adult})
 var moviesFacade = movies.NewFacadeStub([]movies.MovieDTO{movie1, movie2})
-var facade = BuildIntegrationTestFacade(usersFacade, moviesFacade)
+var feesFacade = fees.Build()
+var config = rental_crud.IntegrationTestConfig(rental.StandardConfig())
+var facade = rental_crud.Build(usersFacade, moviesFacade, feesFacade, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
 
 const testServerAddress = ":8000"
 
@@ -92,7 +94,7 @@ func panicOnError(err error) {
 }
 
 func clearDB() {
-	db, err := sql.Open("postgres", rental_crud.IntegrationTestConfig().PostgresDSN)
+	db, err := sql.Open("postgres", rental_crud.IntegrationTestConfig(rental.StandardConfig()).PostgresDSN)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -100,14 +102,6 @@ func clearDB() {
 	if err != nil {
 		panic(err.Error())
 	}
-}
-
-func BuildIntegrationTestFacade(usersFacade users.Facade, moviesFacade movies.Facade) rental.Facade {
-	feesStub := fees.Build()
-
-	config := rental_crud.IntegrationTestConfig()
-
-	return rental_crud.BuildFacade(usersFacade, moviesFacade, &feesStub, infrastructure.NewPostgresRepository(config.PostgresDSN), config)
 }
 
 func getMoviesIDs(rentedMovies []rental.RentedMovieDTO) []int {

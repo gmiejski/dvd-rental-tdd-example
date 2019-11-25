@@ -35,6 +35,6 @@ func (f *FacadeStub) findFees(userID int) (UserFeesDTO, error) {
 	return UserFeesDTO{}, errors.New("user not found")
 }
 
-func Build() FacadeStub {
-	return FacadeStub{fees: make(map[int]UserFeesDTO)}
+func Build() Facade {
+	return &FacadeStub{fees: make(map[int]UserFeesDTO)}
 }
